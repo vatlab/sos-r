@@ -53,15 +53,20 @@ cat(a)
 
     def testMagicPreview(self):
         with sos_kernel() as kc:
+            iopub = kc.iopub_channel
             #
             execute(kc=kc, code='''
 %preview mtcars
 %use R
 ''')
             wait_for_idle(kc)
+            execute(kc=kc, code='''
+%use SoS
+''')
+            wait_for_idle(kc)
             # preview figure
             execute(kc=kc, code='''
-%preview a.png
+%preview -n a.png
 R:
     png('a.png')
     plot(0)
