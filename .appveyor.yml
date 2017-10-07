@@ -1,0 +1,62 @@
+version: 1.0.{build}
+
+# docker support
+#image: Visual Studio 2017
+
+#init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+
+branches:
+    only:
+        - master
+
+skip_tags: true
+
+max_jobs: 100
+
+build: none
+
+clone_folder: c:\projects\sos
+clone_depth: 50
+shallow_clone: false
+
+environment:
+    matrix:
+        - PYTHON: "C:\\Miniconda36-x64"
+          PYTHON_VERSION: 3.6
+
+        - PYTHON: "C:\\Miniconda35-x64"
+          PYTHON_VERSION: 3.5
+
+install:
+    - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    # Useful for debugging any issues with conda
+    - conda info -a
+    # packages required by SoS
+    - pip install jedi pyyaml psutil tqdm 
+    - pip install fasteners pygments ipython ptpython networkx pydot pydotplus nose 
+    - pip install entrypoints numpy pandas sos sos-notebook
+
+    # install r kernel
+    - conda install -c r r-essentials r-feather
+    - conda install -c conda-forge feather-format
+
+    # install sos
+    - pip install pytest
+    - python setup.py install
+
+
+test_script:
+    - cd test
+    - pytest -x -v
+
+notifications:
+    - provider: Email
+      to:
+        - ben.bob@gmail.com
+      on_build_status_changed: true
+
+
