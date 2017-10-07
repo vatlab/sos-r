@@ -53,15 +53,20 @@ cat(a)
 
     def testMagicPreview(self):
         with sos_kernel() as kc:
+            iopub = kc.iopub_channel
             #
             execute(kc=kc, code='''
 %preview mtcars
 %use R
 ''')
             wait_for_idle(kc)
+            execute(kc=kc, code='''
+%use SoS
+''')
+            wait_for_idle(kc)
             # preview figure
             execute(kc=kc, code='''
-%preview a.png
+%preview -n a.png
 R:
     png('a.png')
     plot(0)
@@ -99,21 +104,7 @@ R:
             # switch back
             execute(kc=kc, code='%use SoS')
             wait_for_idle(kc)
-            # preview dot, needs imagemagick, which is unavailable under windows.
-            if sys.platform == 'win32':
-                return
-            execute(kc=kc, code='''
-%preview -n a.dot
-with open('a.dot', 'w') as dot:
-    dot.write("""\
-graph graphname {
-     a -- b -- c;
-     b -- d;
-}
-""")
-''')
-            res = get_display_data(iopub, 'image/png')
-            self.assertGreater(len(res), 1000, 'Expect a image {}'.format(res))
+
 
     def testVisualizer(self):
         with sos_kernel() as kc:
