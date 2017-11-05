@@ -75,7 +75,7 @@ R:
 [1]
 depends: R_library("ggplot2", "2.2+")
 output: '1.txt'
-run:
+run: expand=True
     sleep 5
     touch {output}
 ''')
