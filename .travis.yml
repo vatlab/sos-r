@@ -48,8 +48,8 @@ script:
     - pytest -x -v --cov sos_r --cov-report=xml
       
 after_success:
-    - coverage combine;
-    - coveralls;
+    - coverage combine
+    - coveralls
 
 notifications:
     email:
