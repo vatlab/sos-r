@@ -5,9 +5,6 @@ os:
     # travis does not support python on osx yet (https://github.com/travis-ci/travis-ci/issues/4729)
 language: python
 python:
-    #- "3.3" test stops at installing spyder notebook etc
-    #- "3.4" test fails for unknown reason (sh not found):w
-    - "3.5"
     - "3.6"
 before_install:
     # Base SoS
@@ -48,17 +45,11 @@ install: "python setup.py install"
 before_script:
     - cd test
 script:
-    - 'if [ $TRAVIS_PYTHON_VERSION == "3.6" ]; then
-           pytest -x -v;
-       else
-           pytest -x -v --cov sos_r --cov-report=xml;
-       fi'
+    - pytest -x -v --cov sos_r --cov-report=xml
       
 after_success:
-    - 'if [ $TRAVIS_PYTHON_VERSION == "3.5" ]; then
-           coverage combine;
-           coveralls;
-        fi'
+    - coverage combine;
+    - coveralls;
 
 notifications:
     email:
