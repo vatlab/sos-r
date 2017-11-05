@@ -77,7 +77,7 @@ depends: R_library("ggplot2", "2.2+")
 output: '1.txt'
 run:
     sleep 5
-    touch ${output}
+    touch {output}
 ''')
         wf = script.workflow()
         Base_Executor(wf).run()
