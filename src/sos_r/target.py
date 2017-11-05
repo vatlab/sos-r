@@ -21,7 +21,7 @@
 #
 import os
 from sos.utils import env
-from sos.target import BaseTarget, textMD5
+from sos.target import BaseTarget, textMD5, sos_targets
 
 class R_library(BaseTarget):
     '''A target for a R library.'''
@@ -52,49 +52,49 @@ class R_library(BaseTarget):
         if len(glob_wildcards('{repo}/{pkg}', [name])['repo']):
             # package is from github
             self._install('devtools', None, repos)
-            install_script = interpolate('''
+            install_script = f'''
             options(warn=-1)
-            package_repo <- ${name!r}
+            package_repo <- {name!r}
             package <- basename(package_repo)
-            if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {
-                write(paste(package, packageVersion(package), "AVAILABLE"), file="${output_file}")
-            } else {
+            if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {{
+                write(paste(package, packageVersion(package), "AVAILABLE"), file="{output_file}")
+            }} else {{
                 devtools::install_github(package_repo)
                 # if it still does not exist, write the package name to output
-                if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {
-                    write(paste(package, packageVersion(package), "INSTALLED"), file="${output_file}")
-                } else {
-                    write(paste(package, "NA", "MISSING"), file="${output_file}")
+                if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {{
+                    write(paste(package, packageVersion(package), "INSTALLED"), file="{output_file}")
+                }} else {{
+                    write(paste(package, "NA", "MISSING"), file="{output_file}")
                     quit("no")
-                }
-            }
+                }}
+            }}
             cur_version <- packageVersion(package)
-            ''', '${ }', locals())
+            '''
         else:
             # package is from cran or bioc
-            install_script = interpolate('''
+            install_script = f'''
             options(warn=-1)
-            package <- ${name!r}
-            if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {
-                write(paste(package, packageVersion(package), "AVAILABLE"), file=${output_file!r})
-            } else {
-                install.packages(package, repos="${repos}",
+            package <- {name!r}
+            if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {{
+                write(paste(package, packageVersion(package), "AVAILABLE"), file={output_file!r})
+            }} else {{
+                install.packages(package, repos="{repos}",
                     quiet=FALSE)
                 # if the package still does not exist
-                if (!suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {
+                if (!suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {{
                     source("http://bioconductor.org/biocLite.R")
                     biocLite(package, suppressUpdates=TRUE, suppressAutoUpdate=TRUE, ask=FALSE)
-                }
+                }}
                 # if it still does not exist, write the package name to output
-                if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {
-                    write(paste(package, packageVersion(package), "INSTALLED"), file=${output_file!r})
-                } else {
-                    write(paste(package, "NA", "MISSING"), file=${output_file!r})
+                if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {{
+                    write(paste(package, packageVersion(package), "INSTALLED"), file={output_file!r})
+                }} else {{
+                    write(paste(package, "NA", "MISSING"), file={output_file!r})
                     quit("no")
-                }
-            }
+                }}
+            }}
             cur_version <- packageVersion(package)
-            ''', '${ }', locals())
+            '''
         version_script = ''
         if version is not None:
             version = list(version)
@@ -113,13 +113,12 @@ class R_library(BaseTarget):
             # if current version satisfies any of the
             # requirement the check program quits
             for x, y in zip(version, operators):
-                version_script += '''
-                if (cur_version {1} {0}) {{
+                version_script += f'''
+                if (cur_version {y} {repr(x)}) {{
                   quit("no")
                 }}
-                '''.format(repr(x), y)
-            version_script += 'write(paste(package, cur_version, "VERSION_MISMATCH"), file = {})'.\
-              format(repr(output_file))
+                '''
+            version_script += f'write(paste(package, cur_version, "VERSION_MISMATCH"), file = {repr(output_file)})'
         # temporarily change the run mode to run to execute script
         try:
             with open(script_file, 'w') as sfile:
@@ -131,7 +130,7 @@ class R_library(BaseTarget):
                 env.logger.warning('Failed to detect or install R library')
                 return False
         except Exception as e:
-            env.logger.error('Failed to execute script: {}'.format(e))
+            env.logger.error(f'Failed to execute script: {e}')
             return False
         finally:
             os.remove(script_file)
@@ -141,17 +140,17 @@ class R_library(BaseTarget):
             for line in tmp:
                 lib, version, status = line.split()
                 if status.strip() == "MISSING":
-                    env.logger.warning('R Library {} is not available and cannot be installed.'.format(lib))
+                    env.logger.warning(f'R Library {lib} is not available and cannot be installed.')
                 elif status.strip() == 'AVAILABLE':
-                    env.logger.debug('R library {} ({}) is available'.format(lib, version))
+                    env.logger.debug(f'R library {lib} ({version}) is available')
                     ret_val = True
                 elif status.strip() == 'INSTALLED':
-                    env.logger.debug('R library {} ({}) has been installed'.format(lib, version))
+                    env.logger.debug(f'R library {lib} ({version}) has been installed')
                     ret_val = True
                 elif status.strip() == 'VERSION_MISMATCH':
-                    env.logger.warning('R library {} ({}) does not satisfy version requirement!'.format(lib, version))
+                    env.logger.warning(f'R library {lib} ({version}) does not satisfy version requirement!')
                 else:
-                    raise RuntimeError('This should not happen: {}'.format(line))
+                    raise RuntimeError(f'This should not happen: {line}')
         try:
             os.remove(output_file)
         except Exception:
@@ -171,7 +170,7 @@ class R_library(BaseTarget):
 
     def __repr__(self):
         if self._version:
-            return '{}("{}", {!r})'.format(self.__class__.__name__, self.name(), self._version)
+            return f'{self.__class__.__name__}("{self.name()}", {self._version!r})'
         else:
             return super(R_library, self).__repr__()
 

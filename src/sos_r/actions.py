@@ -110,8 +110,8 @@ def Rmarkdown(script=None, input=None, output=None, args='{input:r}, output_file
     if ret != 0:
         temp_file = os.path.join('.sos', f'{"Rmarkdown"}_{os.getpid()}.md')
         shutil.copyfile(input_file, temp_file)
-        cmd = interpolate('Rscript -e "rmarkdown::render({})"'.format(args),
-            {'input': sos_targets(input_file), 'output': sos_targets(output_file)})
+        cmd = interpolate(f'Rscript -e "rmarkdown::render({args})"',
+                          {'input': sos_targets(input_file), 'output': sos_targets(output_file)})
         raise RuntimeError(f'Failed to execute script. Please use command \n"{cmd}"\nunder {os.getcwd()} to test it.')
     if write_to_stdout:
         with open(output_file) as out:
