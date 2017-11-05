@@ -39,7 +39,7 @@ cat(a)
             stdout, stderr = get_std_output(iopub)
             self.assertTrue(stdout.endswith('100'), 'Should have output {}'.format(stdout))
             #self.assertEqual(stderr, '')
-            now let us restart
+            #now let us restart
             execute(kc=kc, code='''
 %shutdown --restart R
 %use R
