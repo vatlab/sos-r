@@ -287,12 +287,14 @@ class sos_R:
     def get_vars(self, names):
         for name in names:
             if name.startswith('_'):
-                self.sos_kernel.warn('Variable {} is passed from SoS to kernel {} as {}'.format(name, self.kernel_name, '.' + name[1:]))
+                self.sos_kernel.warn(
+                    f'Variable {name} is passed from SoS to kernel {self.kernel_name} as {"." + name[1:]}')
                 newname = '.' + name[1:]
             else:
                 newname = name
             r_repr = _R_repr(env.sos_dict[name])
-            self.sos_kernel.run_cell('{} <- {}'.format(newname, r_repr), True, False, on_error='Failed to get variable {} to R'.format(name))
+            self.sos_kernel.run_cell(f'{newname} <- {r_repr}', True, False,
+                                     on_error=f'Failed to get variable {name} to R')
 
     def put_vars(self, items, to_kernel=None):
         # first let us get all variables with names starting with sos
@@ -304,12 +306,12 @@ class sos_R:
 
         for item in items:
             if '.' in item:
-                self.sos_kernel.warn('Variable {} is put to SoS as {}'.format(item, item.replace('.', '_')))
+                self.sos_kernel.warn(f'Variable {item} is put to SoS as {item.replace(".", "_")}')
 
         if not items:
             return {}
 
-        py_repr = 'cat(..py.repr(list({})))'.format(','.join('{0}={0}'.format(x) for x in items))
+        py_repr = f'cat(..py.repr(list({",".join("{0}={0}".format(x) for x in items)})))'
         response = self.sos_kernel.get_response(py_repr, ('stream',), name=('stdout',))[0][1]
         expr = response['text']
 
@@ -329,7 +331,7 @@ class sos_R:
                 # evaluate as raw string to correctly handle \\ etc
                 return eval(expr)
             except Exception as e:
-                self.sos_kernel.warn('Failed to evaluate {!r}: {}'.format(expr, e))
+                self.sos_kernel.warn(f'Failed to evaluate {expr!r}: {e}')
                 return None
 
     def sessioninfo(self):
