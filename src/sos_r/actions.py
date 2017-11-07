@@ -32,7 +32,7 @@ from sos.sos_eval import interpolate
 from sos.target import UnknownTarget, sos_targets
 from .target import R_library
 
-@SoS_Action(run_mode=['prepare', 'run', 'interactive'], acceptable_args=['script', 'args'])
+@SoS_Action(acceptable_args=['script', 'args'])
 def R(script, args='', **kwargs):
     '''Execute specified script with command Rscript, with default options
     "--default-packages=datasets,methods,utils,stats,grDevices,graphics". This action accepts
@@ -45,7 +45,7 @@ def R(script, args='', **kwargs):
     return SoS_ExecuteScript(
         script, 'Rscript --default-packages=datasets,methods,utils,stats,grDevices,graphics ', '.R', args).run(**kwargs)
 
-@SoS_Action(run_mode=['run', 'interactive'], acceptable_args=['script', 'args'])
+@SoS_Action(acceptable_args=['script', 'args'])
 def Rmarkdown(script=None, input=None, output=None, args='{input:r}, output_file={output:ar}', **kwargs):
     '''Convert input file to output using Rmarkdown
 
