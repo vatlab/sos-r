@@ -27,7 +27,7 @@ import shutil
 from sos.sos_script import SoS_Script
 from sos.utils import env
 from sos.sos_executor import Base_Executor
-from sos.target import FileTarget
+from sos.target import file_target
 
 class TestTarget(unittest.TestCase):
     def setUp(self):
@@ -37,7 +37,7 @@ class TestTarget(unittest.TestCase):
 
     def tearDown(self):
         for f in self.temp_files:
-            FileTarget(f).remove('both')
+            file_target(f).remove('both')
 
     def testRLibrary(self):
         '''Test target R_Library'''
