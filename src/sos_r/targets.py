@@ -157,7 +157,7 @@ class R_library(BaseTarget):
             pass
         return ret_val
 
-    def exists(self, mode='any'):
+    def target_exists(self, mode='any'):
         if (self._library, self._version) in self.LIB_STATUS_CACHE:
             return self.LIB_STATUS_CACHE[(self._library, self._version)]
         else:
@@ -165,7 +165,7 @@ class R_library(BaseTarget):
             self.LIB_STATUS_CACHE[(self._library, self._version)] = ret
             return ret
 
-    def name(self):
+    def target_name(self):
         return self._library
 
     def __repr__(self):
@@ -174,6 +174,6 @@ class R_library(BaseTarget):
         else:
             return super(R_library, self).__repr__()
 
-    def signature(self, mode='any'):
+    def target_signature(self, mode='any'):
         # we are supposed to get signature of the library, but we cannot
         return textMD5(repr(self._library))
