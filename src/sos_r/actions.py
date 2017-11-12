@@ -28,9 +28,9 @@ import tempfile
 
 from sos.actions import SoS_Action, SoS_ExecuteScript, collect_input
 from sos.utils import env
-from sos.sos_eval import interpolate
-from sos.target import UnknownTarget, sos_targets
-from .target import R_library
+from sos.eval import interpolate
+from sos.targets import UnknownTarget, sos_targets
+from .targets import R_library
 
 @SoS_Action(run_mode=['prepare', 'run', 'interactive'], acceptable_args=['script', 'args'])
 def R(script, args='', **kwargs):
