@@ -55,15 +55,15 @@ setup(name = "sos-r",
     packages = find_packages('src'),
     package_dir = {'': 'src'},
     install_requires=[
-          'sos>=0.9.10.1',
-          'sos-notebook>=0.9.10.1',
+          'sos>=0.9.10.10',
+          'sos-notebook>=0.9.10.9',
           'feather-format',
           'pandas',
           'numpy'
       ],
     entry_points= '''
 [sos_targets]
-R_library = sos_r.target:R_library
+R_library = sos_r.targets:R_library
 
 [sos_actions]
 R = sos_r.actions:R
