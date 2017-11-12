@@ -170,7 +170,7 @@ class R_library(BaseTarget):
 
     def __repr__(self):
         if self._version:
-            return f'{self.__class__.__name__}("{self.name()}", {self._version!r})'
+            return f'{self.__class__.__name__}("{self.target_name()}", {self._version!r})'
         else:
             return super(R_library, self).__repr__()
 

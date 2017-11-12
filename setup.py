@@ -55,7 +55,7 @@ setup(name = "sos-r",
     packages = find_packages('src'),
     package_dir = {'': 'src'},
     install_requires=[
-          'sos>=0.9.10.10',
+          'sos>=0.9.10.11',
           'sos-notebook>=0.9.10.8',
           'feather-format',
           'pandas',
