@@ -69,19 +69,17 @@ def Rmarkdown(script=None, input=None, output=None, args='{input:r}, output_file
     You can specify more options using the args parameter of the action. The default value
     of args is `${input!r} --output ${output!ar}'
     '''
-    if not R_library('rmarkdown').exists():
+    if not R_library('rmarkdown').target_exists():
         raise UnknownTarget(R_library('rmarkdown'))
 
-    input_file = collect_input(script, input)
+    input = sos_targets(collect_input(script, input))
 
-    write_to_stdout = False
-    if output is None:
+    output = sos_targets(output)
+    if len(output) == 0:
         write_to_stdout = True
-        output_file = tempfile.NamedTemporaryFile(mode='w+t', suffix='.html', delete=False).name
-    elif isinstance(output, str):
-        output_file = os.path.expanduser(output)
+        output = sos_targets(tempfile.NamedTemporaryFile(mode='w+t', suffix='.html', delete=False).name)
     else:
-        raise RuntimeError(f'A filename is expected, {output} provided')
+        write_to_stdout = False
     #
     ret = 1
     try:
@@ -91,7 +89,7 @@ def Rmarkdown(script=None, input=None, output=None, args='{input:r}, output_file
         #        clean = TRUE, params = NULL, knit_meta = NULL, envir = parent.frame(),
         #        run_Rmarkdown = TRUE, quiet = FALSE, encoding = getOption("encoding"))
         cmd = interpolate(f'Rscript -e "rmarkdown::render({args})"',
-                          {'input': sos_targets(input_file), 'output': sos_targets(output_file)})
+                          {'input': input, 'output': output})
         env.logger.trace(f'Running command "{cmd}"')
         if env.config['run_mode'] == 'interactive':
             # need to catch output and send to python output, which will in trun be hijacked by SoS notebook
@@ -109,14 +107,14 @@ def Rmarkdown(script=None, input=None, output=None, args='{input:r}, output_file
         env.logger.error(e)
     if ret != 0:
         temp_file = os.path.join('.sos', f'{"Rmarkdown"}_{os.getpid()}.md')
-        shutil.copyfile(input_file, temp_file)
+        shutil.copyfile(str(input), temp_file)
         cmd = interpolate(f'Rscript -e "rmarkdown::render({args})"',
-                          {'input': sos_targets(input_file), 'output': sos_targets(output_file)})
+                          {'input': input, 'output': sos_targets(temp_file)})
         raise RuntimeError(f'Failed to execute script. Please use command \n"{cmd}"\nunder {os.getcwd()} to test it.')
     if write_to_stdout:
-        with open(output_file) as out:
+        with open(str(output[0])) as out:
             sys.stdout.write(out.read())
     else:
-        env.logger.info(f'Report saved to {output_file}')
+        env.logger.info(f'Report saved to {output}')
 
 
