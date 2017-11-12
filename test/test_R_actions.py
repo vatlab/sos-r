@@ -27,7 +27,7 @@ import shutil
 from sos.parser import SoS_Script
 from sos.utils import env
 from sos.workflow_executor import Base_Executor
-from sos.targets import FileTarget
+from sos.targets import file_target
 
 class TestActions(unittest.TestCase):
     def setUp(self):
@@ -36,13 +36,13 @@ class TestActions(unittest.TestCase):
 
     def tearDown(self):
         for f in self.temp_files:
-            FileTarget(f).remove('both')
+            file_target(f).remove('both')
 
     def testRmarkdown(self):
         '''Test action Rmarkdown'''
         if not shutil.which('Rscript'):
             return
-        FileTarget('myreport.html').remove()
+        file_target('myreport.html').remove()
         script = SoS_Script(r'''
 [10]
 
@@ -61,7 +61,7 @@ Rmarkdown(output=_output[0])
         Base_Executor(wf, config={'report_output': 'report.md'}).run()
         self.assertTrue(os.path.isfile('myreport.html'))
         #
-        FileTarget('myreport.html').remove('both')
+        file_target('myreport.html').remove('both')
 
     def testRmarkdownWithInput(self):
         # Rmarkdown with specified input.
@@ -81,7 +81,7 @@ Rmarkdown(input='a.md', output=_output[0])
         wf = script.workflow()
         Base_Executor(wf).run()
         self.assertTrue(os.path.isfile('myreport.html'))
-        FileTarget('myreport.html').remove()
+        file_target('myreport.html').remove()
 
 #     def testRmarkdownWithNoOutput(self):
 #         # another case is no output, so output goes to standard output
@@ -118,8 +118,8 @@ Rmarkdown(input=['default_10.md', 'default_20.md'], output='output.html')
         wf = script.workflow()
         Base_Executor(wf, config={'report_output': '${step_name}.md'}).run()
         for f in ['default_10.md', 'default_20.md', 'output.html']:
-            self.assertTrue(FileTarget(f).exists())
-            FileTarget(f).remove()
+            self.assertTrue(file_target(f).exists())
+            file_target(f).remove()
 
     def testRmarkdownToStdout(self):
         script = SoS_Script(r'''
