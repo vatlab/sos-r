@@ -186,10 +186,15 @@ R_init_statements = r'''
         paste0("read_dataframe(r'", tf, "').as_matrix()")
     }
 }
-..py.repr.array <- function(obj) {
+..py.repr.array.numer <- function(obj) {
     paste0("numpy.array(", "[", paste(obj, collapse = ","), "]).", paste0("reshape([", 
-        paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
-            length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
+                                                                        paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
+                                                                                                                             length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
+}
+..py.repr.array.char <- function(obj) {
+    paste0("numpy.array(", "[", paste0( paste0("eval('", ..py.repr.character.1(obj), "')", collapse=',')), "]).", paste0("reshape([", 
+                                                                                                          paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
+                                                                                                                                                               length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
 }
 ..py.repr.n <- function(obj) {
     paste("[",
@@ -202,7 +207,10 @@ R_init_statements = r'''
     } else if (is.data.frame(obj)) {
       ..py.repr.dataframe(obj)
     } else if (is.array(obj)) {
-      ..py.repr.array(obj)
+      if (is.character(obj))
+        ..py.repr.array.char(obj)
+      else
+        ..py.repr.array.numer(obj)
     } else if (is.null(obj)) {
       'None'
     } else if (is.integer(obj)) {
