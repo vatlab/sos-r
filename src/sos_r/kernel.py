@@ -25,6 +25,7 @@ import tempfile
 from sos.utils import short_repr, env
 from IPython.core.error import UsageError
 import pandas
+import numpy
 
 
 def homogeneous_type(seq):
@@ -185,6 +186,11 @@ R_init_statements = r'''
         paste0("read_dataframe(r'", tf, "').as_matrix()")
     }
 }
+..py.repr.array <- function(obj) {
+    paste0("numpy.array(", "[", paste(obj, collapse = ","), "]).", paste0("reshape([", 
+        paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
+            length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
+}
 ..py.repr.n <- function(obj) {
     paste("[",
         paste(sapply(obj, ..py.repr), collapse=','),
@@ -195,6 +201,8 @@ R_init_statements = r'''
       ..py.repr.matrix(obj)
     } else if (is.data.frame(obj)) {
       ..py.repr.dataframe(obj)
+    } else if (is.array(obj)) {
+      ..py.repr.array(obj)
     } else if (is.null(obj)) {
       'None'
     } else if (is.integer(obj)) {
