@@ -83,8 +83,10 @@ def _R_repr(obj):
             feather.write_dataframe(pandas.DataFrame(obj).copy(), feather_tmp_)
             return 'data.matrix(..read.feather({!r}))'.format(feather_tmp_)
         elif isinstance(obj, numpy.ndarray):
-            return 'array(' + 'c(' + ','.join(repr(x) for x in obj.swapaxes(obj.ndim-2, obj.ndim-1).flatten(order='C')) + ')' + ', dim=(' + 'rev(c' + repr(obj.swapaxes(obj.ndim-2, obj.ndim-1).shape) + ')))' 
-            #return 'c(' + ','.join(_R_repr(x) for x in obj) + ')'
+            if obj.ndim==1:
+                return 'array(c(' + ','.join(_R_repr(x) for x in obj) + '))'
+            else:
+                return 'array(' + 'c(' + ','.join(repr(x) for x in obj.swapaxes(obj.ndim-2, obj.ndim-1).flatten(order='C')) + ')' + ', dim=(' + 'rev(c' + repr(obj.swapaxes(obj.ndim-2, obj.ndim-1).shape) + ')))'
         elif isinstance(obj, pandas.DataFrame):
             try:
                 import feather
