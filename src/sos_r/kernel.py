@@ -24,7 +24,6 @@ from collections import Sequence
 import tempfile
 from sos.utils import short_repr, env
 from IPython.core.error import UsageError
-from collections import OrderedDict
 import pandas
 import numpy
 
@@ -267,7 +266,7 @@ R_init_statements = r'''
       if (is.null(names(obj)))
         ..py.repr.n(obj)
       else {
-        paste("OrderedDict([",
+        paste("dict([",
               paste(sapply(names(obj), function (x)
                 paste0("(", shQuote(gsub("\\.", "_", as.character(x))), ",", ..py.repr(obj[[x]]), ")" )),
                 collapse=','),
