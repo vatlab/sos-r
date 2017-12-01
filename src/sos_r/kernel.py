@@ -24,6 +24,7 @@ from collections import Sequence
 import tempfile
 from sos.utils import short_repr, env
 from IPython.core.error import UsageError
+from collections import OrderedDict
 import pandas
 import numpy
 
@@ -266,11 +267,11 @@ R_init_statements = r'''
       if (is.null(names(obj)))
         ..py.repr.n(obj)
       else {
-        paste("{",
+        paste("OrderedDict([",
               paste(sapply(names(obj), function (x)
-                paste(shQuote(gsub("\\.", "_", as.character(x))), ":", ..py.repr(obj[[x]]))),
+                paste0("(", shQuote(gsub("\\.", "_", as.character(x))), ",", ..py.repr(obj[[x]]), ")" )),
                 collapse=','),
-              "}")
+              "])")
         }
     } else {
       "'Untransferrable variable'"
