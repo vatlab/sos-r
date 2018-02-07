@@ -199,6 +199,11 @@ R_init_statements = r'''
                                                                                                           paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
                                                                                                                                                                length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
 }
+..py.repr.array.logical <- function(obj) {
+  paste0("numpy.array(", "[", paste0( paste0("eval('", apply(obj,c(1:length(dim(obj))),..py.repr.logical.1), "')", collapse=',')), "]).", paste0("reshape([",
+                                                                                                                     paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
+                                                                                                                                                                          length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
+}
 ..py.repr.n <- function(obj) {
     paste("[",
         paste(sapply(obj, ..py.repr), collapse=','),
@@ -212,6 +217,8 @@ R_init_statements = r'''
     } else if (is.array(obj)) {
       if (is.character(obj))
         ..py.repr.array.char(obj)
+      else if (is.logical(obj))
+        ..py.repr.array.logical(obj)
       else
         ..py.repr.array.numer(obj)
     } else if (is.null(obj)) {
