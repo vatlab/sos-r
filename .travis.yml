@@ -30,7 +30,8 @@ before_install:
     # SoS Notebook
     - sudo apt-get install libmagickwand-dev libmagickcore5-extra graphviz
     - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy
-    - pip install pygments ipython wand graphviz sos sos-bash sos-python
+    - pip install pygments ipython wand graphviz sos sos-bash sos-python sos-notebook
+    - python -m sos_notebook.install
 
     # R
     - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
