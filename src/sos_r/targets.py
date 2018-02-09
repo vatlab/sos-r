@@ -49,13 +49,13 @@ class R_library(BaseTarget):
 
         output_file = tempfile.NamedTemporaryFile(mode='w+t', suffix='.txt', delete=False).name
         script_file = tempfile.NamedTemporaryFile(mode='w+t', suffix='.R', delete=False).name
-        if len(glob_wildcards('{repo}/{pkg}', [name])['repo']):
+        if len(glob_wildcards('{repo}@{pkg}', [name])['repo']):
             # package is from github
             self._install('devtools', None, repos)
             install_script = f'''
             options(warn=-1)
-            package_repo <- {name!r}
-            package <- basename(package_repo)
+            package_repo <-strsplit("{name}", split="@")[[1]][2]
+            package <-strsplit("{name}", split="@")[[1]][1]
             if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {{
                 write(paste(package, packageVersion(package), "AVAILABLE"), file="{output_file}")
             }} else {{
@@ -74,7 +74,7 @@ class R_library(BaseTarget):
             # package is from cran or bioc
             install_script = f'''
             options(warn=-1)
-            package <- {name!r}
+            package <- "{name}"
             if (suppressMessages(require(package, character.only=TRUE, quietly=TRUE))) {{
                 write(paste(package, packageVersion(package), "AVAILABLE"), file={output_file!r})
             }} else {{
