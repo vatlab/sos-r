@@ -144,37 +144,25 @@ seri_var = list(seri_var)
         with sos_kernel() as kc:
             iopub = kc.iopub_channel
             # create a data frame
-            execute(kc=kc, code='%use R')
-            wait_for_idle(kc)
-            execute(kc=kc, code="null_var = NULL")
-            wait_for_idle(kc)
-            execute(kc=kc, code="num_var = 123")
-            wait_for_idle(kc)
-            execute(kc=kc, code="num_arr_var = c(1, 2, 3)")
-            wait_for_idle(kc)
-            execute(kc=kc, code="logic_var = TRUE")
-            wait_for_idle(kc)
-            execute(kc=kc, code="logic_arr_var = c(TRUE, FALSE, TRUE)")
-            wait_for_idle(kc)
-            execute(kc=kc, code="char_var = '1\"23'")
-            wait_for_idle(kc)
-            execute(kc=kc, code="char_arr_var = c(1, 2, '3')")
-            wait_for_idle(kc)
-            execute(kc=kc, code="list_var = list(1, 2, '3')")
-            wait_for_idle(kc)
-            execute(kc=kc, code="named_list_var = list(a=1, b=2, c='3')")
-            wait_for_idle(kc)
-            execute(kc=kc, code="mat_var = matrix(c(1,2,3,4), nrow=2)")
-            wait_for_idle(kc)
-            execute(kc=kc, code="recursive_var = list(a=1, b=list(c=3, d='whatever'))")
-            wait_for_idle(kc)
-            execute(kc=kc, code="comp_var = 1+2i")
-            wait_for_idle(kc)
-            execute(kc=kc, code="seri_var = setNames(c(1,2,3,3,3,3),c(0:5))")
-            wait_for_idle(kc)
-            execute(kc=kc, code="%put null_var num_var num_arr_var logic_var logic_arr_var char_var char_arr_var mat_var list_var named_list_var recursive_var comp_var seri_var")
+            execute(kc=kc, code="""\
+%use R
+null_var = NULL
+num_var = 123
+num_arr_var = c(1, 2, 3)
+logic_var = TRUE
+logic_arr_var = c(TRUE, FALSE, TRUE)
+char_var = '1\"23'
+char_arr_var = c(1, 2, '3')
+list_var = list(1, 2, '3')
+named_list_var = list(a=1, b=2, c='3')
+mat_var = matrix(c(1,2,3,4), nrow=2)
+recursive_var = list(a=1, b=list(c=3, d='whatever'))
+comp_var = 1+2i
+seri_var = setNames(c(1,2,3,3,3,3),c(0:5))
+""")
             wait_for_idle(kc)
             execute(kc=kc, code='''
+%put null_var num_var num_arr_var logic_var logic_arr_var char_var char_arr_var mat_var list_var named_list_var recursive_var comp_var seri_var
 %use sos
 seri_var = list(seri_var)
 ''')
