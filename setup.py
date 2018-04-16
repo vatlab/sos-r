@@ -55,20 +55,13 @@ setup(name = "sos-r",
     packages = find_packages('src'),
     package_dir = {'': 'src'},
     install_requires=[
-          'sos>=0.9.10.11',
+          'sos>=0.9.12.0',
           'sos-notebook>=0.9.10.8',
           'feather-format',
           'pandas',
           'numpy'
       ],
     entry_points= '''
-[sos_targets]
-R_library = sos_r.targets:R_library
-
-[sos_actions]
-R = sos_r.actions:R
-Rmarkdown = sos_r.actions:Rmarkdown
-
 [sos_languages]
 R = sos_r.kernel:sos_R
 '''

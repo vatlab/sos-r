@@ -26,9 +26,6 @@ environment:
         - PYTHON: "C:\\Miniconda36-x64"
           PYTHON_VERSION: 3.6
 
-        - PYTHON: "C:\\Miniconda35-x64"
-          PYTHON_VERSION: 3.5
-
 install:
     - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
     - conda config --set always_yes yes --set changeps1 no
@@ -39,6 +36,7 @@ install:
     - pip install jedi pyyaml psutil tqdm 
     - pip install fasteners pygments ipython ptpython networkx pydot pydotplus nose 
     - pip install entrypoints numpy pandas sos sos-notebook
+    - python -m sos_notebook.install
 
     # install r kernel
     - conda install -c r r-essentials r-feather
