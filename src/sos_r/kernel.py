@@ -302,7 +302,7 @@ class sos_R:
     background_color = '#DCDCDA'
     supported_kernels = {'R': ['ir']}
     options = {
-        'assignment_pattern': r'^([_A-Za-z0-9\.]+)\s*(=|<-).*$'
+        'assignment_pattern': r'^\s*([_A-Za-z0-9\.]+)\s*(=|<-).*$'
         }
 
     def __init__(self, sos_kernel, kernel_name='ir'):
