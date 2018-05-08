@@ -304,6 +304,7 @@ class sos_R:
     options = {
         'assignment_pattern': r'^([_A-Za-z0-9\.]+)\s*(=|<-).*$'
         }
+    cd_command = 'setwd({dir!r})'
 
     def __init__(self, sos_kernel, kernel_name='ir'):
         self.sos_kernel = sos_kernel
