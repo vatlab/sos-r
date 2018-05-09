@@ -43,7 +43,14 @@ def homogeneous_type(seq):
 #  by the R kernel.
 #
 #
+
+# prevent recursive variable crashes SoS
+converted_objs = set()
 def _R_repr(obj):
+    if id(obj) in converted_objs:
+        return 'NULL'
+    else:
+        converted_objs.add(id(obj))
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
     elif isinstance(obj, (int, float, str)):
