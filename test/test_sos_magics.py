@@ -60,9 +60,7 @@ cat(a)
 %use R
 ''')
             wait_for_idle(kc)
-            execute(kc=kc, code='''
-%use sos
-''')
+            execute(kc=kc, code='''%use sos''')
             wait_for_idle(kc)
             # preview figure
             execute(kc=kc, code='''\
