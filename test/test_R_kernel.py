@@ -93,7 +93,7 @@ comp_var = 1+2j
 seri_var = pandas.Series([1,2,3,3,3,3])
 ''')
             wait_for_idle(kc)
-            execute(kc=kc, code='''
+            execute(kc=kc, code='''\
 %use R
 %get null_var num_var num_arr_var logic_var logic_arr_var char_var char_arr_var mat_var set_var list_var dict_var recursive_var comp_var seri_var
 %dict -r
@@ -102,7 +102,7 @@ seri_var = pandas.Series([1,2,3,3,3,3])
 seri_var = list(seri_var)
 ''')
             wait_for_idle(kc)
-            execute(kc=kc, code='''
+            execute(kc=kc, code='''\
 %dict null_var num_var num_arr_var logic_var logic_arr_var char_var char_arr_var mat_var set_var list_var dict_var recursive_var comp_var seri_var
 ''')
             res = get_result(iopub)
@@ -161,7 +161,7 @@ comp_var = 1+2i
 seri_var = setNames(c(1,2,3,3,3,3),c(0:5))
 """)
             wait_for_idle(kc)
-            execute(kc=kc, code='''
+            execute(kc=kc, code='''\
 %put null_var num_var num_arr_var logic_var logic_arr_var char_var char_arr_var mat_var list_var named_list_var recursive_var comp_var seri_var
 %use sos
 seri_var = list(seri_var)

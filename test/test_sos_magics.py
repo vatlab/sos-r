@@ -61,11 +61,11 @@ cat(a)
 ''')
             wait_for_idle(kc)
             execute(kc=kc, code='''
-%use SoS
+%use sos
 ''')
             wait_for_idle(kc)
             # preview figure
-            execute(kc=kc, code='''
+            execute(kc=kc, code='''\
 %preview -n a.png
 R:
     png('a.png')
@@ -75,7 +75,7 @@ R:
             res = get_display_data(iopub, 'image/png')
             self.assertGreater(len(res), 1000, 'Expect a image {}'.format(res))
             # preview jpg
-            execute(kc=kc, code='''
+            execute(kc=kc, code='''\
 %preview a.jp*
 R:
     jpeg('a.jpg')
@@ -94,7 +94,7 @@ R:
 ''')
             # or png (which requires imagemagick
             wait_for_idle(kc)
-            execute(kc=kc, code='''
+            execute(kc=kc, code='''\
 %preview a.pdf -s png
 ''')
             # could return html or image depending on configuration
@@ -111,7 +111,7 @@ R:
             # preview variable
             iopub = kc.iopub_channel
             # preview dataframe
-            execute(kc=kc, code='''
+            execute(kc=kc, code='''\
 %preview mtcars -n -l 10
 %get mtcars --from R
 ''')
