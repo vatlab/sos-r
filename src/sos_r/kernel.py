@@ -45,16 +45,7 @@ def homogeneous_type(seq):
 #
 
 # prevent recursive variable crashes SoS
-def R_repr_wrapper(obj):
-    converted_obj = ''
-    return _R_repr(obj)
-
 def _R_repr(obj):
-    nonlocal converted_obj
-    if id(obj) == converted_obj:
-        return 'NULL'
-    elif converted_obj is '':
-        converted_obj = id(obj)
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
     elif isinstance(obj, (int, float, str)):
@@ -74,7 +65,10 @@ def _R_repr(obj):
     elif obj is None:
         return 'NULL'
     elif isinstance(obj, dict):
-        return 'list(' + ','.join('{}={}'.format(x, _R_repr(y)) for x,y in obj.items()) + ')'
+        if id(obj) in [id(x) for x in list(obj.values())]
+            return 'NULL'
+        else:
+            return 'list(' + ','.join('{}={}'.format(x, _R_repr(y)) for x,y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
     else:
