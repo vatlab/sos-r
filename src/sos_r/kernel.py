@@ -65,7 +65,7 @@ def _R_repr(obj):
     elif obj is None:
         return 'NULL'
     elif isinstance(obj, dict):
-        if id(obj) in [id(x) for x in list(obj.values())]
+        if id(obj) in [id(x) for x in list(obj.values())]:
             return 'NULL'
         else:
             return 'list(' + ','.join('{}={}'.format(x, _R_repr(y)) for x,y in obj.items()) + ')'
