@@ -63,7 +63,17 @@ def _R_repr(obj):
     elif obj is None:
         return 'NULL'
     elif isinstance(obj, dict):
-        return 'list(' + ','.join('{}={}'.format(x, _R_repr(y)) for x,y in obj.items()) + ')'
+        # check whether each key string is a valid string in R
+        import re
+        _sos_dealing_with_invalid_key_pattern = re.compile("\W|^(?=\d)")
+        def _sos_dealing_with_invalid_key_make_name(input_string):
+            name = str(input_string)
+            if name.isalpha():
+                return name
+            if not name[0].isalpha():
+                name = 'X' + name
+                return re.sub(_sos_dealing_with_invalid_key_pattern, '_', name)
+        return 'list(' + ','.join('{}={}'.format(_sos_dealing_with_invalid_key_make_name(str(x)), _R_repr(y)) for x,y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
     else:
