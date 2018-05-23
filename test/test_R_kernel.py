@@ -71,6 +71,27 @@ df = pd.DataFrame({'column_{0}'.format(i): arr for i in range(10)})
             wait_for_idle(kc)
             #
 
+    def testGetPythonDictWithSpecialKeyFromR(self):
+        # Python -> R
+        with sos_kernel() as kc:
+            iopub = kc.iopub_channel
+            # create a data frame
+            execute(kc=kc, code='''
+special_dict = {}
+special_dict['11111'] = 1
+special_dict['_1111'] = 'a'
+''')
+            clear_channels(iopub)
+            execute(kc=kc, code="%use R")
+            wait_for_idle(kc)
+            execute(kc=kc, code="%get special_dict")
+            wait_for_idle(kc)
+            execute(kc=kc, code="names(special_dict)")
+            res = get_display_data(iopub)
+            self.assertEqual(res, '[1] "X11111" "X_1111"')
+            execute(kc=kc, code="%use sos")
+            wait_for_idle(kc)
+
     def testGetPythonDataFromR(self):
         with sos_kernel() as kc:
             iopub = kc.iopub_channel
