@@ -40,6 +40,9 @@ def homogeneous_type(seq):
 def make_name(name):
     if name.isalpha():
         return name
+    # the best way to detect an empty string is `if not {string}`
+    if not name:
+        return 'X'
     if not name[0].isalpha():
         name = 'X' + name
     return re.sub('\W', '_', name)
