@@ -28,7 +28,7 @@ import pandas
 import numpy
 import re
 
-_sos_dealing_with_invalid_key_pattern = re.compile("\W|^(?=\d)")
+invalid_key_pattern = re.compile("\W|^(?=\d)")
 
 def homogeneous_type(seq):
     iseq = iter(seq)
@@ -72,7 +72,7 @@ def _R_repr(obj):
                 return name
             if not name[0].isalpha():
                 name = 'X' + name
-                return re.sub(_sos_dealing_with_invalid_key_pattern, '_', name)
+                return re.sub(invalid_key_pattern, '_', name)
         return 'list(' + ','.join('{}={}'.format(make_name(str(x)), _R_repr(y)) for x,y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
