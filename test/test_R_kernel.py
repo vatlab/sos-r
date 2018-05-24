@@ -74,9 +74,9 @@ keys = names(special_dict)
             wait_for_idle(kc)
             execute(kc=kc, code='''%use sos
 %get keys --from R            
-keys
+%dict keys
 ''')
-            res = get_result(iopub)
+            res = get_result(iopub)['keys']
             for key in ["X11111",  "X_1111",  "X11112",  "X_1__2_"]:
                 self.assertTrue(key in res, f"Expecting {key}")
 
