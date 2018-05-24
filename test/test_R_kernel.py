@@ -80,6 +80,8 @@ df = pd.DataFrame({'column_{0}'.format(i): arr for i in range(10)})
 special_dict = {}
 special_dict['11111'] = 1
 special_dict['_1111'] = 'a'
+special_dict[11111] = 2
+special_dict[(1,2)] = 3
 ''')
             clear_channels(iopub)
             execute(kc=kc, code="%use R")
@@ -88,7 +90,7 @@ special_dict['_1111'] = 'a'
             wait_for_idle(kc)
             execute(kc=kc, code="names(special_dict)")
             res = get_display_data(iopub)
-            self.assertEqual(res, '[1] "X11111" "X_1111"')
+            self.assertEqual(res, '[1] "X11111"  "X_1111"  "X11111"  "X_1__2_"')
             execute(kc=kc, code="%use sos")
             wait_for_idle(kc)
 
