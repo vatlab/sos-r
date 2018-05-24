@@ -24,7 +24,7 @@ def make_name(name):
     if name.isalpha():
         return name
     # the best way to detect an empty string is `if not {string}`
-    if not name or name[0].isalpha():
+    if not name or not name[0].isalpha():
         name = 'X' + name
     return re.sub('\W', '_', name)
 
@@ -313,6 +313,8 @@ class sos_R:
             else:
                 newname = name
             r_repr = _R_repr(env.sos_dict[name])
+            if self.sos_kernel._debug_mode:
+                self.sos_kernel.warn(r_repr)
             self.sos_kernel.run_cell(f'{newname} <- {r_repr}', True, False,
                                      on_error=f'Failed to get variable {name} to R')
 
