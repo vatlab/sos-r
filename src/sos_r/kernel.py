@@ -36,14 +36,14 @@ def homogeneous_type(seq):
     else:
         return True if all(isinstance(x, first_type) for x in iseq) else False
 
-# check whether each key string is a valid string in R
+# make the SoS dict key name to be valid in R list
 def make_name(input_string):
-    name = str(input_string)
+    name = input_string
     if name.isalpha():
         return name
     if not name[0].isalpha():
         name = 'X' + name
-        return re.sub("\W', '_', name)
+    return re.sub('\W', '_', name)
 
 #
 #  support for %get
@@ -52,6 +52,7 @@ def make_name(input_string):
 #  by the R kernel.
 #
 #
+
 def _R_repr(obj):
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
