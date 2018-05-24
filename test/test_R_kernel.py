@@ -63,19 +63,22 @@ df = pd.DataFrame({'column_{0}'.format(i): arr for i in range(10)})
 special_dict = {}
 special_dict['11111'] = 1
 special_dict['_1111'] = 'a'
-special_dict[11111] = 2
+special_dict[11112] = 2
 special_dict[(1,2)] = 3
 ''')
-            clear_channels(iopub)
-            execute(kc=kc, code="%use R")
             wait_for_idle(kc)
-            execute(kc=kc, code="%get special_dict")
+            execute(kc=kc, code='''%use R
+%get special_dict
+keys = names(special_dict)
+''')
             wait_for_idle(kc)
-            execute(kc=kc, code="names(special_dict)")
-            res = get_display_data(iopub)
-            self.assertEqual(res, '[1] "X11111"  "X_1111"  "X11111"  "X_1__2_"')
-            execute(kc=kc, code="%use sos")
-            wait_for_idle(kc)
+            execute(kc=kc, code='''%use sos
+%get keys --from R            
+keys
+''')
+            res = get_result(iopub)
+            for key in ["X11111",  "X_1111",  "X11112",  "X_1__2_"]:
+                self.assertTrue(key in res, f"Expecting {key}")
 
     def testGetPythonDataFromR(self):
         with sos_kernel() as kc:
