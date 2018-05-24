@@ -37,8 +37,7 @@ def homogeneous_type(seq):
         return True if all(isinstance(x, first_type) for x in iseq) else False
 
 # make the SoS dict key name to be valid in R list
-def make_name(input_string):
-    name = input_string
+def make_name(name):
     if name.isalpha():
         return name
     if not name[0].isalpha():
