@@ -28,8 +28,6 @@ import pandas
 import numpy
 import re
 
-invalid_key_pattern = re.compile("\W|^(?=\d)")
-
 def homogeneous_type(seq):
     iseq = iter(seq)
     first_type = type(next(iseq))
@@ -37,6 +35,15 @@ def homogeneous_type(seq):
         return True if all(isinstance(x, (int, float)) for x in iseq) else False
     else:
         return True if all(isinstance(x, first_type) for x in iseq) else False
+
+# check whether each key string is a valid string in R
+def make_name(input_string):
+    name = str(input_string)
+    if name.isalpha():
+        return name
+    if not name[0].isalpha():
+        name = 'X' + name
+        return re.sub("\W', '_', name)
 
 #
 #  support for %get
@@ -65,14 +72,6 @@ def _R_repr(obj):
     elif obj is None:
         return 'NULL'
     elif isinstance(obj, dict):
-        # check whether each key string is a valid string in R
-        def make_name(input_string):
-            name = str(input_string)
-            if name.isalpha():
-                return name
-            if not name[0].isalpha():
-                name = 'X' + name
-                return re.sub(invalid_key_pattern, '_', name)
         return 'list(' + ','.join('{}={}'.format(make_name(str(x)), _R_repr(y)) for x,y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
