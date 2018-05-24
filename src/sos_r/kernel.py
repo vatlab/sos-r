@@ -9,7 +9,7 @@ from sos.utils import short_repr, env
 from IPython.core.error import UsageError
 import pandas
 import numpy
-
+import re
 
 def homogeneous_type(seq):
     iseq = iter(seq)
@@ -19,6 +19,15 @@ def homogeneous_type(seq):
     else:
         return True if all(isinstance(x, first_type) for x in iseq) else False
 
+# make the SoS dict key name to be valid in R list
+def make_name(name):
+    if name.isalpha():
+        return name
+    # the best way to detect an empty string is `if not {string}`
+    if not name or name[0].isalpha():
+        name = 'X' + name
+    return re.sub('\W', '_', name)
+
 #
 #  support for %get
 #
@@ -26,6 +35,7 @@ def homogeneous_type(seq):
 #  by the R kernel.
 #
 #
+
 def _R_repr(obj):
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
@@ -46,7 +56,7 @@ def _R_repr(obj):
     elif obj is None:
         return 'NULL'
     elif isinstance(obj, dict):
-        return 'list(' + ','.join('{}={}'.format(x, _R_repr(y)) for x,y in obj.items()) + ')'
+        return 'list(' + ','.join('{}={}'.format(make_name(str(x)), _R_repr(y)) for x,y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
     else:
