@@ -44,7 +44,7 @@ install:
 
     # install sos
     - pip install pytest
-    - python setup.py install
+    - pip install . -U
 
 
 test_script:
