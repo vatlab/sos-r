@@ -48,10 +48,9 @@ install:
 
 
 test_script:
-    - cd test
-    - pytest -x -v
-
-on_finish:
+    #- cd test
+    #- pytest -x -v
+    #on_finish:
     - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 notifications:
