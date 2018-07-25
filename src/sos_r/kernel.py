@@ -11,6 +11,7 @@ import pandas
 import numpy
 import re
 
+
 def homogeneous_type(seq):
     iseq = iter(seq)
     first_type = type(next(iseq))
@@ -20,6 +21,8 @@ def homogeneous_type(seq):
         return True if all(isinstance(x, first_type) for x in iseq) else False
 
 # make the SoS dict key name to be valid in R list
+
+
 def make_name(name):
     if name.isalpha():
         return name
@@ -36,13 +39,13 @@ def make_name(name):
 #
 #
 
+
 def _R_repr(obj):
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
     elif isinstance(obj, (int, str)):
         return repr(obj)
     elif isinstance(obj, float):
-        import numpy
         if numpy.isnan(obj):
             return 'NA'
         else:
@@ -62,37 +65,37 @@ def _R_repr(obj):
     elif obj is None:
         return 'NULL'
     elif isinstance(obj, dict):
-        return 'list(' + ','.join('{}={}'.format(make_name(str(x)), _R_repr(y)) for x,y in obj.items()) + ')'
+        return 'list(' + ','.join('{}={}'.format(make_name(str(x)), _R_repr(y)) for x, y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
     else:
-        import numpy
-        import pandas
-        if isinstance(obj, (numpy.intc, numpy.intp, numpy.int8, numpy.int16, numpy.int32, numpy.int64,\
-                numpy.uint8, numpy.uint16, numpy.uint32, numpy.uint64, numpy.float16, numpy.float32, \
-                numpy.float64)):
+        if isinstance(obj, (numpy.intc, numpy.intp, numpy.int8, numpy.int16, numpy.int32, numpy.int64,
+                            numpy.uint8, numpy.uint16, numpy.uint32, numpy.uint64, numpy.float16, numpy.float32,
+                            numpy.float64)):
             return repr(obj)
         elif isinstance(obj, numpy.matrixlib.defmatrix.matrix):
             try:
                 import feather
             except ImportError:
                 raise UsageError('The feather-format module is required to pass numpy matrix as R matrix'
-                    'See https://github.com/wesm/feather/tree/master/python for details.')
-            feather_tmp_ = tempfile.NamedTemporaryFile(suffix='.feather', delete=False).name
+                                 'See https://github.com/wesm/feather/tree/master/python for details.')
+            feather_tmp_ = tempfile.NamedTemporaryFile(
+                suffix='.feather', delete=False).name
             feather.write_dataframe(pandas.DataFrame(obj).copy(), feather_tmp_)
             return 'data.matrix(..read.feather({!r}))'.format(feather_tmp_)
         elif isinstance(obj, numpy.ndarray):
-            if obj.ndim==1:
+            if obj.ndim == 1:
                 return 'array(c(' + ','.join(_R_repr(x) for x in obj) + '))'
             else:
-                return 'array(' + 'c(' + ','.join(repr(x) for x in obj.swapaxes(obj.ndim-2, obj.ndim-1).flatten(order='C')) + ')' + ', dim=(' + 'rev(c' + repr(obj.swapaxes(obj.ndim-2, obj.ndim-1).shape) + ')))'
+                return 'array(' + 'c(' + ','.join(repr(x) for x in obj.swapaxes(obj.ndim - 2, obj.ndim - 1).flatten(order='C')) + ')' + ', dim=(' + 'rev(c' + repr(obj.swapaxes(obj.ndim - 2, obj.ndim - 1).shape) + ')))'
         elif isinstance(obj, pandas.DataFrame):
             try:
                 import feather
             except ImportError:
                 raise UsageError('The feather-format module is required to pass pandas DataFrame as R data.frame'
-                    'See https://github.com/wesm/feather/tree/master/python for details.')
-            feather_tmp_ = tempfile.NamedTemporaryFile(suffix='.feather', delete=False).name
+                                 'See https://github.com/wesm/feather/tree/master/python for details.')
+            feather_tmp_ = tempfile.NamedTemporaryFile(
+                suffix='.feather', delete=False).name
             try:
                 data = obj.copy()
                 # if the dataframe has index, it would not be transferred due to limitations
@@ -102,7 +105,7 @@ def _R_repr(obj):
                     df_index = list(data.index)
                 elif not isinstance(data.index, pandas.RangeIndex):
                     # we should give a warning here
-                    df_index=None
+                    df_index = None
                 feather.write_dataframe(data, feather_tmp_)
             except Exception:
                 # if data cannot be written, we try to manipulate data
@@ -115,12 +118,11 @@ def _R_repr(obj):
                 # double quoted.
             return '..read.feather({!r}, index={})'.format(feather_tmp_, _R_repr(df_index))
         elif isinstance(obj, pandas.Series):
-            dat=list(obj.values)
-            ind=list(obj.index.values)
+            dat = list(obj.values)
+            ind = list(obj.index.values)
             return 'setNames(' + 'c(' + ','.join(_R_repr(x) for x in dat) + ')' + ',c(' + ','.join(_R_repr(y) for y in ind) + '))'
         else:
             return repr('Unsupported datatype {}'.format(short_repr(obj)))
-
 
 
 # R    length (n)    Python
@@ -137,6 +139,7 @@ def _R_repr(obj):
 # list with names    n > 0    dict
 # matrix    n > 0    array
 # data.frame    n > 0    DataFrame
+
 
 R_init_statements = r'''
 ..py.repr.logical.1 <- function(obj) {
@@ -189,18 +192,18 @@ R_init_statements = r'''
     }
 }
 ..py.repr.array.numer <- function(obj) {
-    paste0("numpy.array(", "[", paste(obj, collapse = ","), "]).", paste0("reshape([", 
-                                                                        paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
+    paste0("numpy.array(", "[", paste(obj, collapse = ","), "]).", paste0("reshape([",
+                                                                        paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(",
                                                                                                                              length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
 }
 ..py.repr.array.char <- function(obj) {
-    paste0("numpy.array(", "[", paste0( paste0("eval('", ..py.repr.character.1(obj), "')", collapse=',')), "]).", paste0("reshape([", 
-                                                                                                          paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
+    paste0("numpy.array(", "[", paste0( paste0("eval('", ..py.repr.character.1(obj), "')", collapse=',')), "]).", paste0("reshape([",
+                                                                                                          paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(",
                                                                                                                                                                length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
 }
 ..py.repr.array.logical <- function(obj) {
   paste0("numpy.array(", "[", paste0( paste0("eval('", apply(obj,c(1:length(dim(obj))),..py.repr.logical.1), "')", collapse=',')), "]).", paste0("reshape([",
-                                                                                                                     paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(", 
+                                                                                                                     paste0(rev(dim(obj)), collapse = ","), "]).", paste0("swapaxes(",
                                                                                                                                                                           length(dim(obj)) - 2, ",", length(dim(obj)) - 1, ")")))
 }
 ..py.repr.n <- function(obj) {
@@ -302,7 +305,7 @@ class sos_R:
     supported_kernels = {'R': ['ir']}
     options = {
         'assignment_pattern': r'^\s*([_A-Za-z0-9\.]+)\s*(=|<-).*$'
-        }
+    }
     cd_command = 'setwd({dir!r})'
 
     def __init__(self, sos_kernel, kernel_name='ir'):
@@ -326,7 +329,8 @@ class sos_R:
 
     def put_vars(self, items, to_kernel=None):
         # first let us get all variables with names starting with sos
-        response = self.sos_kernel.get_response('cat(..py.repr(ls()))', ('stream',), name=('stdout',))[0][1]
+        response = self.sos_kernel.get_response(
+            'cat(..py.repr(ls()))', ('stream',), name=('stdout',))[0][1]
         all_vars = eval(response['text'])
         all_vars = [all_vars] if isinstance(all_vars, str) else all_vars
 
@@ -334,19 +338,21 @@ class sos_R:
 
         for item in items:
             if '.' in item:
-                self.sos_kernel.warn(f'Variable {item} is put to SoS as {item.replace(".", "_")}')
+                self.sos_kernel.warn(
+                    f'Variable {item} is put to SoS as {item.replace(".", "_")}')
 
         if not items:
             return {}
 
         py_repr = f'cat(..py.repr(list({",".join("{0}={0}".format(x) for x in items)})))'
-        response = self.sos_kernel.get_response(py_repr, ('stream',), name=('stdout',))[0][1]
+        response = self.sos_kernel.get_response(
+            py_repr, ('stream',), name=('stdout',))[0][1]
         expr = response['text']
 
         if to_kernel in ('Python2', 'Python3'):
             # directly to python3
             return '{}\n{}\nglobals().update({})'.format('from feather import read_dataframe\n' if 'read_dataframe' in expr else '',
-                    'import numpy' if 'numpy' in expr else '', expr)
+                                                         'import numpy' if 'numpy' in expr else '', expr)
         # to sos or any other kernel
         else:
             # irkernel (since the new version) does not produce execute_result, only
@@ -364,5 +370,6 @@ class sos_R:
                 return None
 
     def sessioninfo(self):
-        response = self.sos_kernel.get_response(r'cat(paste(capture.output(sessionInfo()), collapse="\n"))', ('stream',), name=('stdout',))[0]
+        response = self.sos_kernel.get_response(
+            r'cat(paste(capture.output(sessionInfo()), collapse="\n"))', ('stream',), name=('stdout',))[0]
         return response[1]['text']
