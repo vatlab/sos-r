@@ -39,8 +39,14 @@ def make_name(name):
 def _R_repr(obj):
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
-    elif isinstance(obj, (int, float, str)):
+    elif isinstance(obj, (int, str)):
         return repr(obj)
+    elif isinstance(obj, float):
+        import numpy
+        if numpy.isnan(obj):
+            return 'NA'
+        else:
+            return repr(obj)
     elif isinstance(obj, complex):
         return 'complex(real = ' + str(obj.real) + ', imaginary = ' + str(obj.imag) + ')'
     elif isinstance(obj, Sequence):
