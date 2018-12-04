@@ -298,7 +298,7 @@ R_init_statements = r'''
     return(data)
 }
 ..sos.preview <- function(var) {
-    return str(var)
+    return(str(var))
 }
 '''
 
@@ -375,7 +375,7 @@ class sos_R:
     def preview(self, item):
         # return the preview of variable.
         return item, self.sos_kernel.get_response(
-            f'..sos.preview({item})', ('stream',), name=('stdout',))[0]
+            f'..sos.preview({item})', ('stream',), name=('stdout',))[0][1]['text']
 
     def sessioninfo(self):
         response = self.sos_kernel.get_response(
