@@ -297,6 +297,9 @@ R_init_statements = r'''
       rownames(data) <- index
     return(data)
 }
+..sos.preview <- function(var) {
+    return str(var)
+}
 '''
 
 
@@ -368,6 +371,11 @@ class sos_R:
             except Exception as e:
                 self.sos_kernel.warn(f'Failed to evaluate {expr!r}: {e}')
                 return None
+
+    def preview(self, item):
+        # return the preview of variable.
+        return item, self.sos_kernel.get_response(
+            f'..sos.preview({item})', ('stream',), name=('stdout',))[0]
 
     def sessioninfo(self):
         response = self.sos_kernel.get_response(
