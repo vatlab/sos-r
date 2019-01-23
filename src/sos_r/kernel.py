@@ -39,8 +39,7 @@ def make_name(name):
 #
 #
 
-
-def _R_repr(obj):
+def _R_repr(obj, processed=None):
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
     elif isinstance(obj, (int, str)):
@@ -65,7 +64,13 @@ def _R_repr(obj):
     elif obj is None:
         return 'NULL'
     elif isinstance(obj, dict):
-        return 'list(' + ','.join('{}={}'.format(make_name(str(x)), _R_repr(y)) for x, y in obj.items()) + ')'
+        if processed:
+            if id(obj) in processed:
+                return 'NULL'
+        else:
+            processed = set()
+        processed.add(id(obj))
+        return 'list(' + ','.join('{}={}'.format(make_name(str(x)), _R_repr(y, processed)) for x, y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
     else:
