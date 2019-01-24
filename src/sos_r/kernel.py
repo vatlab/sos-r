@@ -270,7 +270,9 @@ R_init_statements = r'''
           paste0("pandas.Series(", "[", paste(sapply(unname(obj), ..py.repr.character.1), collapse=','), "],", paste0("[", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
     } else if (is.logical(obj)) {
       # if the vector has no name
-        if (is.null(names(obj)))
+        if (is.na(obj)) {
+            'numpy.nan'
+        } else if (is.null(names(obj)))
           if (length(obj) == 1)
             ..py.repr.logical.1(obj)
           else
