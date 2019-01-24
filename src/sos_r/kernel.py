@@ -46,7 +46,7 @@ def _R_repr(obj, processed=None):
         return repr(obj)
     elif isinstance(obj, float):
         if numpy.isnan(obj):
-            return 'NA'
+            return 'NaN'
         else:
             return repr(obj)
     elif isinstance(obj, complex):
