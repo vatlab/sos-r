@@ -249,8 +249,10 @@ R_init_statements = r'''
         else
           paste0("pandas.Series(", "[", paste(sapply(unname(obj), ..py.repr.complex.1), collapse=','), "],", paste0("[", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
     } else if (is.double(obj)){
+        if (is.nan(obj)) {
+            'numpy.nan'
         # if the vector has no name
-        if (is.null(names(obj)))
+        } else if (is.null(names(obj)))
           if (length(obj) == 1)
             ..py.repr.double.1(obj)
           else
