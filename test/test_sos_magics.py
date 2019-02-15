@@ -75,12 +75,12 @@ R:
 ''')
             # or png (which requires imagemagick
             wait_for_idle(kc)
-            execute(kc=kc, code='''\
-%preview a.pdf -s png
-''')
-            # could return html or image depending on configuration
-            res = get_display_data(iopub, ('text/html', 'image/png'))
-            self.assertTrue('iframe' in res or len(res) > 1000, 'Expect a image {}'.format(res))
+#             execute(kc=kc, code='''\
+# %preview a.pdf -s png
+# ''')
+#             # could return html or image depending on configuration
+#             res = get_display_data(iopub, ('text/html', 'image/png'))
+#             self.assertTrue('iframe' in res or len(res) > 1000, 'Expect a image {}'.format(res))
             #
             # switch back
             execute(kc=kc, code='%use SoS')
