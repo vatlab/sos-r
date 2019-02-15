@@ -26,10 +26,10 @@ before_install:
     - sudo apt-get install libmagickwand-dev libmagickcore5-extra graphviz
     - pip install pygments ipython wand graphviz
     # R
-    - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
+    #- conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
     # version 0.4.0 uses pyarrow and jemalloc, which causes an error message
     # ImportError: /home/travis/miniconda/envs/python_test/lib/python3.5/site-packages/pyarrow/../../.././libjemalloc.so.2: cannot allocate memory in static TLS block
-    - conda install -c conda-forge feather-format=0.3.1
+    #- conda install -c conda-forge feather-format=0.3.1
 
 sudo: required
 install:
