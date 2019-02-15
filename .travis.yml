@@ -16,8 +16,6 @@ before_install:
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
-    - conda info -a
-    # downgrade python if needed
     - pip install pyyaml psutil tqdm nose
     - pip install fasteners pygments networkx pydot pydotplus 
     - pip install entrypoints jupyter coverage codacy-coverage pytest pytest-cov python-coveralls
@@ -25,9 +23,8 @@ before_install:
 
     # SoS Notebook
     - sudo apt-get install libmagickwand-dev libmagickcore5-extra graphviz
-    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy pytest
+    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy 
     - pip install pygments ipython wand graphviz sos sos-bash sos-python sos-notebook
-    - python -m sos_notebook.install
 
     # R
     - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
@@ -36,13 +33,13 @@ before_install:
     - conda install -c conda-forge feather-format=0.3.1
 
 sudo: required
-services:
-    - docker
-install: "pip install . -U"
+install:
+    - pip install . -U
+    - python -m sos_notebook.install
 before_script:
     - cd test
 script:
-    - pytest -x -v  --cov-report=xml
+    - pytest -x -v  --cov-report=term-missing
       
 after_success:
     - coverage combine
