@@ -27,7 +27,7 @@ before_install:
 
     # SoS Notebook
     - sudo apt-get install libmagickwand-dev libmagickcore5-extra graphviz
-    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy
+    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy imageio pillow
     - pip install pygments ipython wand graphviz sos sos-bash sos-python sos-notebook
     - python -m sos_notebook.install
 
