@@ -7,7 +7,6 @@ language: python
 python:
     - "3.6"
 before_install:
-    # Base SoS
     - sudo apt-get update
     - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
     - wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh -O miniconda.sh
@@ -16,16 +15,16 @@ before_install:
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
-    - pip install pyyaml psutil tqdm nose
-    - pip install fasteners pygments networkx pydot pydotplus 
+      #- conda info -a
+    - pip install docker rq pyyaml psutil tqdm nose fasteners pygments networkx pydot pydotplus
     - pip install entrypoints jupyter coverage codacy-coverage pytest pytest-cov python-coveralls
-    - conda install pandas numpy
+    - conda install -q pandas numpy
 
     # SoS Notebook
+    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy markdown matplotlib
+    - pip install sos sos-notebook sos-python
     - sudo apt-get install libmagickwand-dev libmagickcore5-extra graphviz
-    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy 
-    - pip install pygments ipython wand graphviz sos sos-bash sos-python sos-notebook
-
+    - pip install pygments ipython wand graphviz
     # R
     - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
     # version 0.4.0 uses pyarrow and jemalloc, which causes an error message
@@ -39,8 +38,8 @@ install:
 before_script:
     - cd test
 script:
-    - pytest -x -v  --cov-report=term-missing
-      
+    - pytest -x -v --cov sos_notebook --cov-report=term-missing
+
 after_success:
     - coverage combine
     - coveralls
@@ -51,4 +50,6 @@ notifications:
             - ben.bob@gmail.com
         on_success: never
         on_failure: always
+
+
 
