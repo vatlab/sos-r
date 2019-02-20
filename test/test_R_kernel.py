@@ -54,6 +54,26 @@ df = pd.DataFrame({'column_{0}'.format(i): arr for i in range(10)})
             wait_for_idle(kc)
             #
 
+    def testGetPythonInfFromR(self):
+        # Python -> R
+        with sos_kernel() as kc:
+            iopub = kc.iopub_channel
+            # create a data frame
+            execute(kc=kc, code='''
+inf_var = float("inf")
+''')
+            clear_channels(iopub)
+            execute(kc=kc, code="%use R")
+            wait_for_idle(kc)
+            execute(kc=kc, code="%get inf_var")
+            wait_for_idle(kc)
+            execute(kc=kc, code="is.infinite(inf_var)")
+            res = get_display_data(iopub)
+            self.assertEqual(res, '[1] TRUE')
+            execute(kc=kc, code="%use sos")
+            wait_for_idle(kc)
+            #
+
     def testGetPythonDictWithSpecialKeyFromR(self):
         # Python -> R
         with sos_kernel() as kc:
@@ -194,6 +214,27 @@ seri_var = list(seri_var)
             execute(kc=kc, code="%use sos")
             wait_for_idle(kc)
 
+    def testPutRInfToPython(self):
+        # Python -> R
+        with sos_kernel() as kc:
+            iopub = kc.iopub_channel
+            # create a data frame
+            execute(kc=kc, code='''
+%use R
+inf_var <- Inf
+''')
+            clear_channels(iopub)
+            execute(kc=kc, code="%use sos")
+            wait_for_idle(kc)
+            execute(kc=kc, code='''
+import numpy
+numpy.isinf(inf_var)
+''')
+            res = get_display_data(iopub)
+            self.assertEqual(res, 'True')
+            execute(kc=kc, code="%use sos")
+            wait_for_idle(kc)
+            #
 
 if __name__ == '__main__':
     unittest.main()
