@@ -383,8 +383,11 @@ class sos_R:
 
     def preview(self, item):
         # return the preview of variable.
-        return item, self.sos_kernel.get_response(
-            f'..sos.preview({item})', ('stream',), name=('stdout',))[0][1]['text']
+        try:
+            return item, self.sos_kernel.get_response(
+                f'..sos.preview({item})', ('stream',), name=('stdout',))[0][1]['text']
+        except Exception:
+            return None
 
     def sessioninfo(self):
         response = self.sos_kernel.get_response(
