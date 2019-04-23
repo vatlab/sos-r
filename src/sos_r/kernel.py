@@ -306,8 +306,8 @@ R_init_statements = r'''
       rownames(data) <- index
     return(data)
 }
-..sos.preview <- function(var) {
-    return(str(var))
+..sos.preview <- function(name) {
+    tryCatch( str(get(name)), error = function(err) { cat(paste('Unknown variable', name)) })
 }
 '''
 
@@ -384,9 +384,11 @@ class sos_R:
     def preview(self, item):
         # return the preview of variable.
         try:
-            return item, self.sos_kernel.get_response(
-                f'..sos.preview({item})', ('stream',), name=('stdout',))[0][1]['text']
-        except Exception:
+            return "", self.sos_kernel.get_response(
+                f'..sos.preview("{item}")', ('stream',), name=('stdout',))[0][1]['text']
+        except Exception as e:
+            if self.sos_kernel._debug_mode:
+                self.sos_kernel.warn(str(e))
             return None
 
     def sessioninfo(self):
