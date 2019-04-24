@@ -3,32 +3,30 @@
 # Copyright (c) Bo Peng and the University of Texas MD Anderson Cancer Center
 # Distributed under the terms of the 3-clause BSD License.
 
-#
-# NOTE: for some namespace reason, this test can only be tested using
-# nose.
-#
-# % nosetests test_kernel.py
-#
-#
+
+import pytest
 import os
-import unittest
-from ipykernel.tests.utils import assemble_output, execute, wait_for_idle
-from sos_notebook.test_utils import sos_kernel, get_result, get_display_data, \
-    clear_channels
+import sys
+import tempfile
+from textwrap import dedent
+from sos_notebook.test_utils import NotebookTest
 
-class TestRKernel(unittest.TestCase):
-    #
-    # Beacuse these tests would be called from sos/test, we
-    # should switch to this directory so that some location
-    # dependent tests could run successfully
-    #
-    def setUp(self):
-        self.olddir = os.getcwd()
-        if os.path.dirname(__file__):
-            os.chdir(os.path.dirname(__file__))
+class TestInterface(NotebookTest):
 
-    def tearDown(self):
-        os.chdir(self.olddir)
+    def test_put_int(self, notebook):
+        idx = notebook.append_and_execute_cell_in_kernel(content=dedent('''\
+            %put var1 var2
+            var1 = 100
+            var2 = 123456789123456789
+            '''), kernel="R")
+        idx = notebook.append_and_execute_cell_in_kernel(content=dedent('''\
+            var1
+            '''), kernel="SoS")
+        assert '100' == notebook.get_cell_output(index=idx)        
+        idx = notebook.append_and_execute_cell_in_kernel(content=dedent('''\
+            var2
+            '''), kernel="SoS")
+        assert '123456789123456789' == notebook.get_cell_output(index=idx)
 
     def testGetPythonDataFrameFromR(self):
         # Python -> R
