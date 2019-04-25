@@ -191,9 +191,9 @@ R_init_statements = r'''
     tf = tempfile('feather')
     write_feather(as.data.frame(obj), tf)
     if (..has.row.names(obj)) {
-        paste0("read_dataframe(r'", tf, "').set_index([", ..py.repr(row.names(obj)),"]).as_matrix()")
+        paste0("read_dataframe(r'", tf, "').set_index([", ..py.repr(row.names(obj)),"]).values")
     } else {
-        paste0("read_dataframe(r'", tf, "').as_matrix()")
+        paste0("read_dataframe(r'", tf, "').values")
     }
 }
 ..py.repr.array.numer <- function(obj) {
