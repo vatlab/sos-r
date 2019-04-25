@@ -14,16 +14,16 @@ from sos_notebook.test_utils import NotebookTest
 class TestInterface(NotebookTest):
 
     def test_put_int(self, notebook):
-        idx = notebook.append_and_execute_cell_in_kernel(content=dedent('''\
+        idx = notebook.call_in_kernel(content=dedent('''\
             %put var1 var2
             var1 = 100
             var2 = 123456789123456789
             '''), kernel="R")
-        idx = notebook.append_and_execute_cell_in_kernel(content=dedent('''\
+        idx = notebook.call_in_kernel(content=dedent('''\
             var1
             '''), kernel="SoS")
         assert '100' == notebook.get_cell_output(index=idx)        
-        idx = notebook.append_and_execute_cell_in_kernel(content=dedent('''\
+        idx = notebook.call_in_kernel(content=dedent('''\
             var2
             '''), kernel="SoS")
         assert '123456789123456789' == notebook.get_cell_output(index=idx)
