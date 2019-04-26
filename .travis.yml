@@ -6,6 +6,8 @@ os:
 language: python
 python:
     - "3.6"
+addons:
+    chrome: stable
 before_install:
     # Base SoS
     - sudo apt-get update
@@ -34,8 +36,8 @@ before_install:
     - python -m sos_notebook.install
 
     # selenium
-    - wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip
-    - unzip chromedriver_linux64.zip -d $HOME/miniconda/bin
+    #- wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip
+    #- unzip chromedriver_linux64.zip -d $HOME/miniconda/bin
 
     # R
     - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
