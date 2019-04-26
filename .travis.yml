@@ -27,11 +27,15 @@ before_install:
 
     # SoS Notebook
     - sudo apt-get install libmagickwand-dev libmagickcore5-extra graphviz
-    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy imageio pillow
+    - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy imageio pillow selenium
     - pip install pygments ipython wand graphviz sos-bash sos-python
     - pip install git+https://github.com/vatlab/sos.git
     - pip install git+https://github.com/vatlab/sos-notebook.git
     - python -m sos_notebook.install
+
+    # selenium
+    - wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip
+    - unzip chromedriver_linux64.zip -d $HOME/miniconda/bin
 
     # R
     - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc

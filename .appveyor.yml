@@ -40,6 +40,11 @@ install:
     - pip install git+https://github.com/vatlab/sos-notebook.git      
     - python -m sos_notebook.install
 
+    # selenium
+    - pip install selenium
+    - ps: Start-FileDownload 'https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_win32.zip'
+    - 7z e chromedriver_win32.zip -o %PYTHON%\\Scripts
+
     # install r kernel
     - conda install -c r r-essentials r-feather
     - conda install -c conda-forge feather-format
