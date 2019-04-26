@@ -3,21 +3,21 @@
 # Copyright (c) Bo Peng and the University of Texas MD Anderson Cancer Center
 # Distributed under the terms of the 3-clause BSD License.
 
-from collections import Sequence
+import numpy
+import pandas
+import re
 import tempfile
+
+from collections import Sequence
 from sos.utils import short_repr, env
 from IPython.core.error import UsageError
-import pandas
-import numpy
-import re
 
 
 def homogeneous_type(seq):
     iseq = iter(seq)
     first_type = type(next(iseq))
     if first_type in (int, float):
-        return True if all(isinstance(x, (int, float))
-                           for x in iseq) else False
+        return True if all(isinstance(x, (int, float)) for x in iseq) else False
     else:
         return True if all(isinstance(x, first_type) for x in iseq) else False
 
@@ -29,7 +29,7 @@ def make_name(name):
     # the best way to detect an empty string is `if not {string}`
     if not name or not name[0].isalpha():
         name = 'X' + name
-    return re.sub('\W', '_', name)
+    return re.sub(r'\W', '_', name)
 
 
 #
@@ -78,75 +78,72 @@ def _R_repr(obj, processed=None):
             for x, y in obj.items()) + ')'
     elif isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
-    else:
-        if isinstance(
-                obj,
-            (numpy.intc, numpy.intp, numpy.int8, numpy.int16, numpy.int32,
-             numpy.int64, numpy.uint8, numpy.uint16, numpy.uint32,
-             numpy.uint64, numpy.float16, numpy.float32, numpy.float64)):
-            return repr(obj)
-        elif isinstance(obj, numpy.matrixlib.defmatrix.matrix):
-            try:
-                import feather
-            except ImportError:
-                raise UsageError(
-                    'The feather-format module is required to pass numpy matrix as R matrix'
-                    'See https://github.com/wesm/feather/tree/master/python for details.'
-                )
-            feather_tmp_ = tempfile.NamedTemporaryFile(suffix='.feather',
-                                                       delete=False).name
-            feather.write_dataframe(pandas.DataFrame(obj).copy(), feather_tmp_)
-            return 'data.matrix(..read.feather({!r}))'.format(feather_tmp_)
-        elif isinstance(obj, numpy.ndarray):
-            if obj.ndim == 1:
-                return 'array(c(' + ','.join(_R_repr(x) for x in obj) + '))'
-            else:
-                return 'array(' + 'c(' + ','.join(
-                    repr(x)
-                    for x in obj.swapaxes(obj.ndim - 2, obj.ndim - 1).flatten(
-                        order='C')) + ')' + ', dim=(' + 'rev(c' + repr(
-                            obj.swapaxes(obj.ndim - 2,
-                                         obj.ndim - 1).shape) + ')))'
-        elif isinstance(obj, pandas.DataFrame):
-            try:
-                import feather
-            except ImportError:
-                raise UsageError(
-                    'The feather-format module is required to pass pandas DataFrame as R data.frame'
-                    'See https://github.com/wesm/feather/tree/master/python for details.'
-                )
-            feather_tmp_ = tempfile.NamedTemporaryFile(suffix='.feather',
-                                                       delete=False).name
-            try:
-                data = obj.copy()
-                # if the dataframe has index, it would not be transferred due to limitations
-                # of feather. We will have to do something to save the index separately and
-                # recreate it. (#397)
-                if isinstance(data.index, pandas.Index):
-                    df_index = list(data.index)
-                elif not isinstance(data.index, pandas.RangeIndex):
-                    # we should give a warning here
-                    df_index = None
-                feather.write_dataframe(data, feather_tmp_)
-            except Exception:
-                # if data cannot be written, we try to manipulate data
-                # frame to have consistent types and try again
-                for c in data.columns:
-                    if not homogeneous_type(data[c]):
-                        data[c] = [str(x) for x in data[c]]
-                feather.write_dataframe(data, feather_tmp_)
-                # use {!r} for path because the string might contain c:\ which needs to be
-                # double quoted.
-            return '..read.feather({!r}, index={})'.format(
-                feather_tmp_, _R_repr(df_index))
-        elif isinstance(obj, pandas.Series):
-            dat = list(obj.values)
-            ind = list(obj.index.values)
-            return 'setNames(' + 'c(' + ','.join(
-                _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
-                    _R_repr(y) for y in ind) + '))'
+    elif isinstance(
+            obj, (numpy.intc, numpy.intp, numpy.int8, numpy.int16, numpy.int32,
+                  numpy.int64, numpy.uint8, numpy.uint16, numpy.uint32,
+                  numpy.uint64, numpy.float16, numpy.float32, numpy.float64)):
+        return repr(obj)
+    elif isinstance(obj, numpy.matrixlib.defmatrix.matrix):
+        try:
+            import feather
+        except ImportError:
+            raise UsageError(
+                'The feather-format module is required to pass numpy matrix as R matrix'
+                'See https://github.com/wesm/feather/tree/master/python for details.'
+            )
+        feather_tmp_ = tempfile.NamedTemporaryFile(
+            suffix='.feather', delete=False).name
+        feather.write_dataframe(pandas.DataFrame(obj).copy(), feather_tmp_)
+        return 'data.matrix(..read.feather({!r}))'.format(feather_tmp_)
+    elif isinstance(obj, numpy.ndarray):
+        if obj.ndim == 1:
+            return 'array(c(' + ','.join(_R_repr(x) for x in obj) + '))'
         else:
-            return repr('Unsupported datatype {}'.format(short_repr(obj)))
+            return 'array(' + 'c(' + ','.join(
+                repr(x)
+                for x in obj.swapaxes(obj.ndim - 2, obj.ndim - 1).flatten(
+                    order='C')) + ')' + ', dim=(' + 'rev(c' + repr(
+                        obj.swapaxes(obj.ndim - 2, obj.ndim - 1).shape) + ')))'
+    elif isinstance(obj, pandas.DataFrame):
+        try:
+            import feather
+        except ImportError:
+            raise UsageError(
+                'The feather-format module is required to pass pandas DataFrame as R data.frame'
+                'See https://github.com/wesm/feather/tree/master/python for details.'
+            )
+        feather_tmp_ = tempfile.NamedTemporaryFile(
+            suffix='.feather', delete=False).name
+        try:
+            data = obj.copy()
+            # if the dataframe has index, it would not be transferred due to limitations
+            # of feather. We will have to do something to save the index separately and
+            # recreate it. (#397)
+            if isinstance(data.index, pandas.Index):
+                df_index = list(data.index)
+            elif not isinstance(data.index, pandas.RangeIndex):
+                # we should give a warning here
+                df_index = None
+            feather.write_dataframe(data, feather_tmp_)
+        except Exception:
+            # if data cannot be written, we try to manipulate data
+            # frame to have consistent types and try again
+            for c in data.columns:
+                if not homogeneous_type(data[c]):
+                    data[c] = [str(x) for x in data[c]]
+            feather.write_dataframe(data, feather_tmp_)
+            # use {!r} for path because the string might contain c:\ which needs to be
+            # double quoted.
+        return '..read.feather({!r}, index={})'.format(feather_tmp_,
+                                                       _R_repr(df_index))
+    elif isinstance(obj, pandas.Series):
+        dat = list(obj.values)
+        ind = list(obj.index.values)
+        return 'setNames(' + 'c(' + ','.join(
+            _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
+                _R_repr(y) for y in ind) + '))'
+    else:
+        return repr('Unsupported datatype {}'.format(short_repr(obj)))
 
 
 # R    length (n)    Python
@@ -351,8 +348,7 @@ class sos_R:
             else:
                 newname = name
             r_repr = _R_repr(env.sos_dict[name])
-            if self.sos_kernel._debug_mode:
-                self.sos_kernel.warn(r_repr)
+            env.log_to_file('VARIABLE', r_repr)
             self.sos_kernel.run_cell(
                 f'{newname} <- {r_repr}',
                 True,
@@ -361,9 +357,8 @@ class sos_R:
 
     def put_vars(self, items, to_kernel=None):
         # first let us get all variables with names starting with sos
-        response = self.sos_kernel.get_response('cat(..py.repr(ls()))',
-                                                ('stream', ),
-                                                name=('stdout', ))[0][1]
+        response = self.sos_kernel.get_response(
+            'cat(..py.repr(ls()))', ('stream',), name=('stdout',))[0][1]
         all_vars = eval(response['text'])
         all_vars = [all_vars] if isinstance(all_vars, str) else all_vars
 
@@ -379,8 +374,8 @@ class sos_R:
             return {}
 
         py_repr = f'cat(..py.repr(list({",".join("{0}={0}".format(x) for x in items)})))'
-        response = self.sos_kernel.get_response(py_repr, ('stream', ),
-                                                name=('stdout', ))[0][1]
+        response = self.sos_kernel.get_response(
+            py_repr, ('stream',), name=('stdout',))[0][1]
         expr = response['text']
 
         if to_kernel in ('Python2', 'Python3'):
@@ -409,16 +404,15 @@ class sos_R:
         # return the preview of variable.
         try:
             return "", self.sos_kernel.get_response(
-                f'..sos.preview("{item}")', ('stream', ),
-                name=('stdout', ))[0][1]['text']
+                f'..sos.preview("{item}")', ('stream',),
+                name=('stdout',))[0][1]['text']
         except Exception as e:
-            if self.sos_kernel._debug_mode:
-                self.sos_kernel.warn(str(e))
+            env.log_to_file('VARIABLE', f'Preview of {item} failed: {e}')
             return None
 
     def sessioninfo(self):
         response = self.sos_kernel.get_response(
             r'cat(paste(capture.output(sessionInfo()), collapse="\n"))',
-            ('stream', ),
-            name=('stdout', ))[0]
+            ('stream',),
+            name=('stdout',))[0]
         return response[1]['text']
