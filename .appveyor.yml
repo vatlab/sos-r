@@ -35,7 +35,9 @@ install:
     # packages required by SoS
     - pip install jedi pyyaml psutil tqdm 
     - pip install fasteners pygments ipython ptpython networkx pydot pydotplus nose 
-    - pip install entrypoints numpy pandas sos sos-notebook
+    - pip install entrypoints numpy pandas
+    - pip install git+https://github.com/vatlab/sos.git
+    - pip install git+https://github.com/vatlab/sos-notebook.git      
     - python -m sos_notebook.install
 
     # install r kernel
