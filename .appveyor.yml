@@ -33,11 +33,11 @@ install:
     # Useful for debugging any issues with conda
     - conda info -a
     # packages required by SoS
-    - pip install jedi pyyaml psutil tqdm 
-    - pip install fasteners pygments ipython ptpython networkx pydot pydotplus nose 
+    - pip install jedi pyyaml psutil tqdm
+    - pip install fasteners pygments ipython ptpython networkx pydot pydotplus nose
     - pip install entrypoints numpy pandas selenium
     - pip install git+https://github.com/vatlab/sos.git
-    - pip install git+https://github.com/vatlab/sos-notebook.git      
+    - pip install git+https://github.com/vatlab/sos-notebook.git
     - python -m sos_notebook.install
 
     # selenium
@@ -45,7 +45,7 @@ install:
     #- 7z e chromedriver_win32.zip -o %PYTHON%\\Scripts
     #
     # install r kernel
-    - conda install -c r r-essentials r-feather
+    - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
     - conda install -c conda-forge feather-format
 
     # install sos
