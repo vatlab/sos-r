@@ -50,6 +50,8 @@ def _R_repr(obj, processed=None):
     elif isinstance(obj, float):
         if numpy.isnan(obj):
             return 'NaN'
+        elif numpy.isinf(obj):
+            return 'Inf'
         else:
             return repr(obj)
     elif isinstance(obj, complex):
@@ -268,6 +270,8 @@ R_init_statements = r'''
         if (is.nan(obj)) {
             'numpy.nan'
         # if the vector has no name
+        } else if (is.infinite(obj)) {
+            'float("inf")'
         } else if (is.null(names(obj)))
           if (length(obj) == 1)
             ..py.repr.double.1(obj)
