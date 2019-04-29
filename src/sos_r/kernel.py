@@ -12,6 +12,7 @@ from collections import Sequence
 from sos.utils import short_repr, env
 from IPython.core.error import UsageError
 
+from ._version import __version__
 
 def homogeneous_type(seq):
     iseq = iter(seq)
@@ -332,6 +333,7 @@ class sos_R:
     supported_kernels = {'R': ['ir']}
     options = {'assignment_pattern': r'^\s*([_A-Za-z0-9\.]+)\s*(=|<-).*$'}
     cd_command = 'setwd({dir!r})'
+    __version__ = __version__
 
     def __init__(self, sos_kernel, kernel_name='ir'):
         self.sos_kernel = sos_kernel
