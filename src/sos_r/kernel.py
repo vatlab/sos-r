@@ -202,7 +202,7 @@ R_init_statements = r'''
     tf = tempfile('feather')
     write_feather(obj, tf)
     if (..has.row.names(obj)) {
-        paste0("read_dataframe(r'", tf, "').reindex([", ..py.repr(row.names(obj)),"])")
+        paste0("read_dataframe(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),"))")
     } else {
         paste0("read_dataframe(r'", tf, "')")
     }
@@ -215,7 +215,7 @@ R_init_statements = r'''
     tf = tempfile('feather')
     write_feather(as.data.frame(obj), tf)
     if (..has.row.names(obj)) {
-        paste0("read_dataframe(r'", tf, "').reindex([", ..py.repr(row.names(obj)),"]).values")
+        paste0("read_dataframe(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),")).values")
     } else {
         paste0("read_dataframe(r'", tf, "').values")
     }
