@@ -175,7 +175,13 @@ R_init_statements = r'''
     as.character(obj)
 }
 ..py.repr.double.1 <- function(obj) {
-    as.character(obj)
+    if (is.nan(obj)) {
+      'numpy.nan'
+    } else if (is.infinite(obj)) {
+      'float("inf")'
+    } else {
+        as.character(obj)
+    }
 }
 ..py.repr.complex.1 <- function(obj) {
     rl = Re(obj)
@@ -196,7 +202,7 @@ R_init_statements = r'''
     tf = tempfile('feather')
     write_feather(obj, tf)
     if (..has.row.names(obj)) {
-        paste0("read_dataframe(r'", tf, "').set_index([", ..py.repr(row.names(obj)),"])")
+        paste0("read_dataframe(r'", tf, "').reindex([", ..py.repr(row.names(obj)),"])")
     } else {
         paste0("read_dataframe(r'", tf, "')")
     }
@@ -209,7 +215,7 @@ R_init_statements = r'''
     tf = tempfile('feather')
     write_feather(as.data.frame(obj), tf)
     if (..has.row.names(obj)) {
-        paste0("read_dataframe(r'", tf, "').set_index([", ..py.repr(row.names(obj)),"]).values")
+        paste0("read_dataframe(r'", tf, "').reindex([", ..py.repr(row.names(obj)),"]).values")
     } else {
         paste0("read_dataframe(r'", tf, "').values")
     }
@@ -239,6 +245,17 @@ R_init_statements = r'''
       ..py.repr.matrix(obj)
     } else if (is.data.frame(obj)) {
       ..py.repr.dataframe(obj)
+    } else if (is.list(obj)) {
+      # if the list has no name
+      if (is.null(names(obj)))
+        ..py.repr.n(obj)
+      else {
+        paste("dict([",
+              paste(sapply(names(obj), function (x)
+                paste0("(", shQuote(gsub("\\.", "_", as.character(x))), ",", ..py.repr(obj[[x]]), ")" )),
+                collapse=','),
+              "])")
+        }
     } else if (is.array(obj)) {
       if (is.character(obj))
         ..py.repr.array.char(obj)
@@ -263,22 +280,19 @@ R_init_statements = r'''
           if (length(obj) == 1)
             ..py.repr.complex.1(obj)
           else
-            paste("[", paste(..py.repr.complex.1(obj), collapse=','), "]")
+            paste("[", paste(sapply(obj, ..py.repr.complex.1), collapse=','), "]")
         else
           paste0("pandas.Series(", "[", paste(sapply(unname(obj), ..py.repr.complex.1), collapse=','), "],", paste0("[", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
     } else if (is.double(obj)){
-        if (is.nan(obj)) {
-            'numpy.nan'
-        # if the vector has no name
-        } else if (is.infinite(obj)) {
-            'float("inf")'
-        } else if (is.null(names(obj)))
-          if (length(obj) == 1)
+        if (is.null(names(obj))) {
+          if (length(obj) == 1) {
             ..py.repr.double.1(obj)
-          else
-            paste("[", paste(obj, collapse=','), "]")
-        else
+          } else {
+            paste("[", paste(sapply(obj, ..py.repr.double.1), collapse=','), "]")
+          }
+        } else {
           paste0("pandas.Series(", "[", paste(unname(obj), collapse=','), "],", paste0("[", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
+        }
     } else if (is.character(obj)) {
         # if the vector has no name
         if (is.null(names(obj)))
@@ -299,17 +313,6 @@ R_init_statements = r'''
             ..py.repr.n(obj)
         else
           paste0("pandas.Series(", "[", paste(sapply(unname(obj), ..py.repr.logical.1), collapse=','), "],", paste0("[", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
-    } else if (is.list(obj)) {
-      # if the list has no name
-      if (is.null(names(obj)))
-        ..py.repr.n(obj)
-      else {
-        paste("dict([",
-              paste(sapply(names(obj), function (x)
-                paste0("(", shQuote(gsub("\\.", "_", as.character(x))), ",", ..py.repr(obj[[x]]), ")" )),
-                collapse=','),
-              "])")
-        }
     } else {
       "'Untransferrable variable'"
     }
