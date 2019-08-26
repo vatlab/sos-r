@@ -36,7 +36,7 @@ before_install:
     - python -m sos_notebook.install
 
     # selenium
-    - wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip
+    - wget https://chromedriver.storage.googleapis.com/76.0.3809.126/chromedriver_linux64.zip
     - unzip chromedriver_linux64.zip -d $HOME/miniconda/bin
 
     # R
