@@ -28,7 +28,7 @@ before_install:
     - conda install pandas numpy
 
     # SoS Notebook
-    - sudo apt-get install libmagickwand-dev libmagickcore5-extra graphviz
+    - sudo apt-get install libmagickwand-dev libmagickcore-dev graphviz
     - pip install jedi notebook nbconvert nbformat pyyaml psutil tqdm scipy imageio pillow selenium
     - pip install pygments ipython wand graphviz sos-bash sos-python
     - pip install git+https://github.com/vatlab/sos.git
