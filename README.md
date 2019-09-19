@@ -4,5 +4,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e7f047cd5fa545e585e134b62bad8aec)](https://www.codacy.com/app/BoPeng/sos-r?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=vatlab/sos-r&amp;utm_campaign=Badge_Grade)
 [![Coverage Status](https://coveralls.io/repos/github/vatlab/sos-r/badge.svg)](https://coveralls.io/github/vatlab/sos-r)
 
-# sos-r
+# SoS language module for R
+
 SoS extension for R. Please refer to [SoS Homepage](http://vatlab.github.io/SoS/) for details.
