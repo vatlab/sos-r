@@ -389,10 +389,11 @@ class sos_R:
 
         if to_kernel in ('Python2', 'Python3'):
             # directly to python3
-            return '{}\n{}\nglobals().update({})'.format(
+            return '{}\n{}\n{}\nglobals().update({})'.format(
                 'from feather import read_dataframe\n'
                 if 'read_dataframe' in expr else '',
-                'import numpy' if 'numpy' in expr else '', expr)
+                'import numpy' if 'numpy' in expr else '',
+                'import pandas' if 'pandas' in expr else '', expr)
         # to sos or any other kernel
         else:
             # irkernel (since the new version) does not produce execute_result, only
