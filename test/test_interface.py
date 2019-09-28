@@ -52,14 +52,6 @@ class TestInterface(NotebookTest):
                       expect_error=True)
         assert '500' == notebook.check_output('_a_1', kernel='SoS')
 
-    def test_auto_vars(self, notebook):
-        '''Test automatic exchange of variables with names starting with sos'''
-        notebook.call('sosInSoS=123', kernel="SoS")
-        assert '123' == notebook.check_output('sosInSoS', kernel='R')
-
-        notebook.call('sosInR <- 12345', kernel="R")
-        assert '12345' == notebook.check_output('sosInR', kernel='SoS')
-
     def test_preview(self, notebook):
         '''Test support for %preview'''
         output = notebook.check_output('''\
