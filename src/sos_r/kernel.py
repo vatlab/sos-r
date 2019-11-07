@@ -14,6 +14,7 @@ from IPython.core.error import UsageError
 
 from ._version import __version__
 
+
 def homogeneous_type(seq):
     iseq = iter(seq)
     first_type = type(next(iseq))
@@ -332,6 +333,15 @@ R_init_statements = r'''
 ..sos.preview <- function(name) {
     tryCatch( str(get(name)), error = function(err) { cat(paste('Unknown variable', name)) })
 }
+..sos.expand <- function(text, sigil) {
+    if (! suppressMessages(suppressWarnings(require("knitr", quietly = TRUE)))) {
+      try(install.packages('knitr', repos='http://cran.stat.ucla.edu/'), silent=TRUE)
+      if (!suppressMessages(suppressWarnings(require("knitr"))))
+        stop('Failed to install knitr library')
+    }
+    suppressPackageStartupMessages(library(knitr, quietly = TRUE))
+    cat(knit_expand(text=text, delim=unlist(strsplit(sigil, split=' '))))
+}
 '''
 
 
@@ -409,6 +419,21 @@ class sos_R:
             except Exception as e:
                 self.sos_kernel.warn(f'Failed to evaluate {expr!r}: {e}')
                 return None
+
+    def expand(self, text, sigil):
+        try:
+            text = text.replace('"', r'\"')
+            sigil = sigil.replace('"', r'\"')
+            return self.sos_kernel.get_response(
+                f'..sos.expand("{text}", "{sigil}")', ('stream',),
+                name=('stdout',))[0][1]['text']
+        except Exception:
+            err_msg = self.sos_kernel.get_response(
+                f'..sos.expand("{text}", "{sigil}")', ('error',),
+                name=('evalue',))[0][1]['evalue']
+            self.sos_kernel.warn(
+                f'Failed to expand {text} with sigil {sigil}: {err_msg}')
+            return text
 
     def preview(self, item):
         # return the preview of variable.
