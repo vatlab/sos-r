@@ -340,7 +340,7 @@ R_init_statements = r'''
         stop('Failed to install knitr library')
     }
     suppressPackageStartupMessages(library(knitr, quietly = TRUE))
-    cat(knit_expand(text=text, delim=unlist(strsplit(sigil, split=' '))))
+    cat(knit_expand(text=text, delim=sigil))
 }
 '''
 
@@ -421,15 +421,23 @@ class sos_R:
                 return None
 
     def expand(self, text, sigil):
+        if '"' in sigil:
+            self.sos_kernel.warn(f'Unacceptable delimiter {sigil}')
+            return text
         try:
             text = text.replace('"', r'\"')
-            sigil = sigil.replace('"', r'\"')
+            l, r = sigil.split(' ')
+            # in the case of "`r", we actually use "`r " as left delimiter.
+            if l[-1].isalpha():
+                l = l + ' '
+            if r[0].isalpha():
+                r = ' ' + r
             return self.sos_kernel.get_response(
-                f'..sos.expand("{text}", "{sigil}")', ('stream',),
+                f'..sos.expand("{text}", c("{l}", "{r}"))', ('stream',),
                 name=('stdout',))[0][1]['text']
         except Exception:
             err_msg = self.sos_kernel.get_response(
-                f'..sos.expand("{text}", "{sigil}")', ('error',),
+                f'..sos.expand("{text}", c("{l}", "{r}"))', ('error',),
                 name=('evalue',))[0][1]['evalue']
             self.sos_kernel.warn(
                 f'Failed to expand {text} with sigil {sigil}: {err_msg}')
