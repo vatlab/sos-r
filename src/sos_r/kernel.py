@@ -42,8 +42,12 @@ def make_name(name):
 #
 #
 
+# use dictionary to remove duplicated warnings
+_R_repr_warnings = {}
+
 
 def _R_repr(obj, processed=None):
+    global _R_repr_warnings
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
     elif isinstance(obj, (int, str)):
@@ -125,6 +129,10 @@ def _R_repr(obj, processed=None):
             # recreate it. (#397)
             if isinstance(data.index, pandas.Index):
                 df_index = list(data.index)
+                if len(df_index) != len(set(df_index)):
+                    df_index = None
+                    _R_repr_warnings[
+                        'Index is ignored because R dataframe does not accept non-unique row names.'] = 1
             elif not isinstance(data.index, pandas.RangeIndex):
                 # we should give a warning here
                 df_index = None
@@ -147,7 +155,10 @@ def _R_repr(obj, processed=None):
             _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
                 _R_repr(y) for y in ind) + '))'
     else:
-        return repr('Unsupported datatype {}'.format(short_repr(obj)))
+        _R_repr_warnings[
+            'Unsupported datatype {}. Variable is set to NULL'.format(
+                short_repr(obj))] = 1
+        return 'NULL'
 
 
 # R    length (n)    Python
@@ -358,6 +369,7 @@ class sos_R:
         self.init_statements = R_init_statements
 
     def get_vars(self, names):
+        global _R_repr_warnings
         for name in names:
             if name.startswith('_'):
                 self.sos_kernel.warn(
@@ -366,7 +378,11 @@ class sos_R:
                 newname = '.' + name[1:]
             else:
                 newname = name
+            _R_repr_warnings = {}
             r_repr = _R_repr(env.sos_dict[name])
+            if _R_repr_warnings:
+                self.sos_kernel.warn('\n'.join(_R_repr_warnings.keys()))
+                _R_repr_warnings = {}
             env.log_to_file('VARIABLE', r_repr)
             self.sos_kernel.run_cell(
                 f'{newname} <- {r_repr}',

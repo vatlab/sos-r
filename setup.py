@@ -15,9 +15,11 @@ with open('src/sos_r/_version.py') as version:
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
+
 def get_long_description():
     with open(os.path.join(CURRENT_DIR, "README.md"), "r") as ld_file:
         return ld_file.read()
+
 
 setup(
     name="sos-r",
@@ -27,9 +29,9 @@ setup(
     long_description_content_type="text/markdown",
     author='Bo Peng',
     url='https://github.com/vatlab/SOS',
-    author_email='bpeng@mdanderson.org',
+    author_email='Bo.Peng@bcm.edu',
     maintainer='Bo Peng',
-    maintainer_email='bpeng@mdanderson.org',
+    maintainer_email='Bo.Peng@bcm.edu',
     license='3-clause BSD',
     include_package_data=True,
     classifiers=[
