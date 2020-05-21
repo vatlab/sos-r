@@ -208,7 +208,7 @@ R_init_statements = r'''
 }
 ..py.repr.dataframe <- function(obj) {
     if (!require("feather")) {
-        install.packages('feather', repos='http://cran.stat.ucla.edu/')
+        install.packages('feather', repos='https://cran.r-project.org')
         }
     library(feather)
     tf = tempfile('feather')
@@ -221,7 +221,7 @@ R_init_statements = r'''
 }
 ..py.repr.matrix <- function(obj) {
     if (!require("feather")) {
-        install.packages('feather', repos='http://cran.stat.ucla.edu/')
+        install.packages('feather', repos='https://cran.r-project.org')
         }
     library(feather)
     tf = tempfile('feather')
@@ -331,7 +331,7 @@ R_init_statements = r'''
 }
 ..read.feather <- function(filename, index=NULL) {
     if (! suppressMessages(suppressWarnings(require("feather", quietly = TRUE)))) {
-      try(install.packages('feather', repos='http://cran.stat.ucla.edu/'), silent=TRUE)
+      try(install.packages('feather', repos='https://cran.r-project.org'), silent=TRUE)
       if (!suppressMessages(suppressWarnings(require("feather"))))
         stop('Failed to install feather library')
     }
@@ -346,7 +346,7 @@ R_init_statements = r'''
 }
 ..sos.expand <- function(text, sigil) {
     if (! suppressMessages(suppressWarnings(require("knitr", quietly = TRUE)))) {
-      try(install.packages('knitr', repos='http://cran.stat.ucla.edu/'), silent=TRUE)
+      try(install.packages('knitr', repos='https://cran.r-project.org'), silent=TRUE)
       if (!suppressMessages(suppressWarnings(require("knitr"))))
         stop('Failed to install knitr library')
     }
