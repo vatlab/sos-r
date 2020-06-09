@@ -339,8 +339,15 @@ R_init_statements = r'''
     data = as.data.frame(read_feather(filename))
     if (!is.null(index))
       rownames(data) <- index
-    for (cn in names(data)[sapply(data,is, class2="integer64")])
-      data[[cn]] <- as.integer(data[[cn]]);
+    for (cn in names(data)[sapply(data,is, class2="integer64")]) {
+      data[[cn]] <- tryCatch( {
+          as.integer(data[[cn]])
+      }, warning = function (w) {
+          message("out of range integer column is converted to numeric")
+          as.numeric(data[[cn]])
+      }
+    )
+    }
     return(data)
 }
 ..sos.preview <- function(name) {
