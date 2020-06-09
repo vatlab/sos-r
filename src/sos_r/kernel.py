@@ -330,15 +330,24 @@ R_init_statements = r'''
     }
 }
 ..read.feather <- function(filename, index=NULL) {
-    if (! suppressMessages(suppressWarnings(require("feather", quietly = TRUE)))) {
-      try(install.packages('feather', repos='https://cran.r-project.org'), silent=TRUE)
-      if (!suppressMessages(suppressWarnings(require("feather"))))
-        stop('Failed to install feather library')
+    if (! suppressMessages(suppressWarnings(require("arrow", quietly = TRUE)))) {
+      try(install.packages('arrow', repos='https://cran.r-project.org'), silent=TRUE)
+      if (!suppressMessages(suppressWarnings(require("arrow"))))
+        stop('Failed to install arrow library')
     }
-    suppressPackageStartupMessages(library(feather, quietly = TRUE))
+    suppressPackageStartupMessages(library(arrow, quietly = TRUE))
     data = as.data.frame(read_feather(filename))
     if (!is.null(index))
       rownames(data) <- index
+    for (cn in names(data)[sapply(data,is, class2="integer64")]) {
+      data[[cn]] <- tryCatch( {
+          as.integer(data[[cn]])
+      }, warning = function (w) {
+          message("out of range integer column is converted to numeric")
+          as.numeric(data[[cn]])
+      }
+    )
+    }
     return(data)
 }
 ..sos.preview <- function(name) {
