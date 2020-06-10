@@ -82,24 +82,34 @@ class TestDataExchange(NotebookTest):
         assert 'False' == self.put_to_SoS(notebook, 'FALSE')
 
     def test_get_num_array(self, notebook):
-        assert '1' == self.get_from_SoS(notebook, '[1]')
-        assert '1 2' == self.get_from_SoS(notebook, '[1, 2]')
+        integers = [str(random.randint(1, 100000)) for x in range(10)]
+        assert integers[0] == self.get_from_SoS(notebook, f'[{integers[0]}]')
+        output = self.get_from_SoS(notebook, f"[{','.join(integers)}]")
+        assert all(x in output for x in integers)
         #
-        assert '1.23' == self.get_from_SoS(notebook, '[1.23]')
-        assert '1.4 2' == self.get_from_SoS(notebook, '[1.4, 2]')
+        floats = ['1.34', '2.4']        
+        assert floats[0] == self.get_from_SoS(notebook, f'[{floats[0]}]')
+        output = self.get_from_SoS(notebook, f"[{','.join(floats)}]")
+        assert all(x in output for x in floats)
 
     def test_put_num_array(self, notebook):
-        # Note that single element numeric array is treated as single value
-        assert '1' == self.put_to_SoS(notebook, 'c(1)')
-        assert '[1, 2]' == self.put_to_SoS(notebook, 'c(1, 2)')
+        integers = [str(random.randint(1, 100000)) for x in range(10)]
+        assert integers[0] == self.put_to_SoS(notebook, f'c({integers[0]})')
+        output = self.put_to_SoS(notebook, f'c({",".join(integers)})')
+        assert all(x in output for x in integers)
         #
-        assert '1.23' == self.put_to_SoS(notebook, 'c(1.23)')
-        assert '[1.4, 2]' == self.put_to_SoS(notebook, 'c(1.4, 2)')
+        floats = ['1232.43', '343.444', '90']
+        assert floats[0] == self.put_to_SoS(notebook, f'c({floats[0]})')
+        output = self.put_to_SoS(notebook, f'c({",".join(floats)})')
+        assert all(x in output for x in floats)
+        
 
     def test_get_logic_array(self, notebook):
         assert 'TRUE' == self.get_from_SoS(notebook, '[True]')
-        assert 'TRUE FALSE TRUE' == self.get_from_SoS(notebook,
+        output = self.get_from_SoS(notebook,
                                                       '[True, False, True]')
+        assert output.count('TRUE') == 2                                                      
+        assert output.count('FALSE') == 1
 
     def test_put_logic_array(self, notebook):
         # Note that single element numeric array is treated as single value
@@ -158,8 +168,11 @@ class TestDataExchange(NotebookTest):
 
     def test_get_series(self, notebook):
         notebook.call('import pandas as pd', kernel='SoS')
-        assert "0\n5\n1\n6\n2\n7" == self.get_from_SoS(notebook,
-                                                       'pd.Series([5 ,6, 7])')
+        nums = [str(random.randint(1, 10000)) for x in range(10)]
+        output = self.get_from_SoS(notebook, f'pd.Series([{",".join(nums)}])')
+        for num in nums:
+            assert num in output
+        
 
     def test_put_series(self, notebook):
         output = self.put_to_SoS(notebook,
@@ -168,7 +181,7 @@ class TestDataExchange(NotebookTest):
 
     def test_get_matrix(self, notebook):
         notebook.call('import numpy as np', kernel='SoS')
-        assert "0 1\n1 2\n3 4" == self.get_from_SoS(notebook,
+        assert "0 1\n1 2\n3 4" in self.get_from_SoS(notebook,
                                                     'np.matrix([[1,2],[3,4]])')
 
     def test_put_matrix(self, notebook):
