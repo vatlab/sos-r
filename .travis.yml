@@ -34,6 +34,8 @@ before_install:
     - pip install git+https://github.com/vatlab/sos.git
     - pip install git+https://github.com/vatlab/sos-notebook.git
     - python -m sos_notebook.install
+    - pip install markdown-kernel
+    - python -m markdown_kernel.install
 
     # selenium
     - LATEST_CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"`
