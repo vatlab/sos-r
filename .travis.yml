@@ -53,11 +53,11 @@ install: "pip install . -U"
 before_script:
     - cd test
 script:
-    - pytest -x -v  --cov-report=xml
+    - pytest -v
 
-after_success:
-    - coverage combine
-    - coveralls
+# after_success:
+#     - coverage combine
+#     - coveralls
 
 notifications:
     email:
