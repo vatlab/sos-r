@@ -30,7 +30,7 @@ class TestInterface(NotebookTest):
         # cd to a specific directory
         tmpdir = os.path.join(tempfile.gettempdir(), 'somedir')
         os.makedirs(tmpdir, exist_ok=True)
-        notebook.call(f'%cd {tmpdir}', kernel="SoS")
+        notebook.call(f'%cd "{tmpdir}"', kernel="SoS")
         output = notebook.check_output('cat(getwd())', kernel="R")
         assert os.path.realpath(tmpdir) == os.path.realpath(output)
 
