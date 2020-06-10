@@ -44,7 +44,7 @@ install:
   #- 7z e chromedriver_win32.zip -o %PYTHON%\\Scripts
   #
   # install r kernel
-  - conda install -c r r-irdisplay r-irkernel r-arrow r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
+  - conda install -c conda-forge r-irdisplay r-irkernel r-arrow r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
   - conda install -c conda-forge feather-format
 
   # install sos
