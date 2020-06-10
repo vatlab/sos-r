@@ -83,10 +83,10 @@ class TestDataExchange(NotebookTest):
 
     def test_get_num_array(self, notebook):
         assert '1' == self.get_from_SoS(notebook, '[1]')
-        assert '1 2' == self.get_from_SoS(notebook, '[1, 2]')
+        assert '789' in self.get_from_SoS(notebook, '[102, 789]')
         #
         assert '1.23' == self.get_from_SoS(notebook, '[1.23]')
-        assert '1.4 2' == self.get_from_SoS(notebook, '[1.4, 2]')
+        assert '1.426' in self.get_from_SoS(notebook, '[1.426, 2]')
 
     def test_put_num_array(self, notebook):
         # Note that single element numeric array is treated as single value
@@ -168,8 +168,8 @@ class TestDataExchange(NotebookTest):
 
     def test_get_matrix(self, notebook):
         notebook.call('import numpy as np', kernel='SoS')
-        assert "0 1\n101 202\n303 404" == self.get_from_SoS(
-            notebook, 'np.matrix([[101,202],[303,404]])')
+        output = self.get_from_SoS(notebook, 'np.matrix([[101,202],[303,404]])')
+        assert "0 1\n101 202\n303 404"
 
     def test_put_matrix(self, notebook):
         output = self.put_to_SoS(notebook,
