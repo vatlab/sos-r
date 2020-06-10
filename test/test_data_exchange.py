@@ -168,8 +168,8 @@ class TestDataExchange(NotebookTest):
 
     def test_get_matrix(self, notebook):
         notebook.call('import numpy as np', kernel='SoS')
-        assert "0 1\n1 2\n3 4" == self.get_from_SoS(notebook,
-                                                    'np.matrix([[1,2],[3,4]])')
+        assert "0 1\n101 202\n303 404" == self.get_from_SoS(
+            notebook, 'np.matrix([[101,202],[303,404]])')
 
     def test_put_matrix(self, notebook):
         output = self.put_to_SoS(notebook,
