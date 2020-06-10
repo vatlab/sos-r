@@ -207,11 +207,11 @@ R_init_statements = r'''
   !all(row.names(df)==seq(1, nrow(df)))
 }
 ..py.repr.dataframe <- function(obj) {
-    if (!require("feather")) {
-        install.packages('feather', repos='https://cran.r-project.org')
+    if (!require("arrow")) {
+        install.packages('arrow', repos='https://cran.r-project.org')
         }
-    library(feather)
-    tf = tempfile('feather')
+    library(arrow)
+    tf = tempfile('arrow')
     write_feather(obj, tf)
     if (..has.row.names(obj)) {
         paste0("read_dataframe(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),"))")
@@ -220,11 +220,11 @@ R_init_statements = r'''
     }
 }
 ..py.repr.matrix <- function(obj) {
-    if (!require("feather")) {
-        install.packages('feather', repos='https://cran.r-project.org')
+    if (!require("arrow")) {
+        install.packages('arrow', repos='https://cran.r-project.org')
         }
-    library(feather)
-    tf = tempfile('feather')
+    library(arrow)
+    tf = tempfile('arrow')
     write_feather(as.data.frame(obj), tf)
     if (..has.row.names(obj)) {
         paste0("read_dataframe(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),")).values")

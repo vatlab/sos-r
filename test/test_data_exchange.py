@@ -198,7 +198,8 @@ class TestDataExchange(NotebookTest):
             import numpy as np
             df = pd.DataFrame(dict(a=[2147483648, 1], b=[2, 3]))
             ''',
-            kernel='SoS')
+            kernel='SoS',
+            expect_error=False)
         assert '2147483648' in notebook.check_output('df[[1, 1]]', kernel='R')
         assert 'numeric' in notebook.check_output('class(df[[1]])', kernel='R')
         assert 'integer' in notebook.check_output('class(df[[2]])', kernel='R')
