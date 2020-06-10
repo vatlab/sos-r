@@ -38,15 +38,16 @@ install:
   - pip install git+https://github.com/vatlab/sos.git
   - pip install git+https://github.com/vatlab/sos-notebook.git
   - python -m sos_notebook.install
+  - pip install markdown-kernel
+  - python -m markdown_kernel.install
 
   # selenium
   #- ps: Start-FileDownload 'https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_win32.zip'
   #- 7z e chromedriver_win32.zip -o %PYTHON%\\Scripts
   #
   # install r kernel
-  - conda install -c conda-forge r-irdisplay r-irkernel r-arrow r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
   - conda install -c conda-forge feather-format
-
+  - conda install -c conda-forge r-irdisplay r-irkernel r-arrow r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
   # install sos
   - pip install pytest
   - pip install . -U

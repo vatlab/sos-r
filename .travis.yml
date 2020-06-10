@@ -34,6 +34,8 @@ before_install:
     - pip install git+https://github.com/vatlab/sos.git
     - pip install git+https://github.com/vatlab/sos-notebook.git
     - python -m sos_notebook.install
+    - pip install markdown-kernel
+    - python -m markdown_kernel.install
 
     # selenium
     - LATEST_CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"`
@@ -44,7 +46,8 @@ before_install:
     - conda install -c conda-forge r-irdisplay r-irkernel r-arrow r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
     # version 0.4.0 uses pyarrow and jemalloc, which causes an error message
     # ImportError: /home/travis/miniconda/envs/python_test/lib/python3.5/site-packages/pyarrow/../../.././libjemalloc.so.2: cannot allocate memory in static TLS block
-    - conda install -c conda-forge feather-format=0.3.1
+    - conda install -c conda-forge feather-format
+    #=0.3.1
 
 sudo: required
 services:
