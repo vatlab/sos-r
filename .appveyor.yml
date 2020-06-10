@@ -6,10 +6,9 @@ version: 1.0.{build}
 #init:
 #  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-
 branches:
-    only:
-        - master
+  only:
+    - master
 
 skip_tags: true
 
@@ -22,48 +21,44 @@ clone_depth: 50
 shallow_clone: false
 
 environment:
-    matrix:
-        - PYTHON: "C:\\Miniconda36-x64"
-          PYTHON_VERSION: 3.6
+  matrix:
+    - PYTHON: "C:\\Miniconda36-x64"
+      PYTHON_VERSION: 3.6
 
 install:
-    - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
-    - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
-    # Useful for debugging any issues with conda
-    - conda info -a
-    # packages required by SoS
-    - pip install jedi pyyaml psutil tqdm
-    - pip install fasteners pygments ipython ptpython networkx pydot pydotplus nose
-    - pip install entrypoints numpy pandas selenium
-    - pip install git+https://github.com/vatlab/sos.git
-    - pip install git+https://github.com/vatlab/sos-notebook.git
-    - python -m sos_notebook.install
+  - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  # packages required by SoS
+  - pip install jedi pyyaml psutil tqdm
+  - pip install fasteners pygments ipython ptpython networkx pydot pydotplus nose
+  - pip install entrypoints numpy pandas selenium
+  - pip install git+https://github.com/vatlab/sos.git
+  - pip install git+https://github.com/vatlab/sos-notebook.git
+  - python -m sos_notebook.install
 
-    # selenium
-    #- ps: Start-FileDownload 'https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_win32.zip'
-    #- 7z e chromedriver_win32.zip -o %PYTHON%\\Scripts
-    #
-    # install r kernel
-    - conda install -c r r-irdisplay r-irkernel r-feather r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
-    - conda install -c conda-forge feather-format
+  # selenium
+  #- ps: Start-FileDownload 'https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_win32.zip'
+  #- 7z e chromedriver_win32.zip -o %PYTHON%\\Scripts
+  #
+  # install r kernel
+  - conda install -c r r-irdisplay r-irkernel r-arrow r-dplyr r-markdown r-rmarkdown r-knitr r-yaml r-htmltools r-catools r-base64enc r-stringr r-backports r-rprojroot r-ggplot2 pandoc
+  - conda install -c conda-forge feather-format
 
-    # install sos
-    - pip install pytest
-    - pip install . -U
-
+  # install sos
+  - pip install pytest
+  - pip install . -U
 
 test_script:
-    - cd test
-    - pytest -x -v
-
-      #on_finish:
-      #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - cd test
+  - pytest -x -v
+    #on_finish:
+    #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 notifications:
-    - provider: Email
-      to:
-        - ben.bob@gmail.com
-      on_build_status_changed: true
-
-
+  - provider: Email
+    to:
+      - ben.bob@gmail.com
+    on_build_status_changed: true
