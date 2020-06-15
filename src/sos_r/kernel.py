@@ -151,9 +151,23 @@ def _R_repr(obj, processed=None):
     elif isinstance(obj, pandas.Series):
         dat = list(obj.values)
         ind = list(obj.index.values)
-        return 'setNames(' + 'c(' + ','.join(
-            _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
-                _R_repr(y) for y in ind) + '))'
+        if obj.dtype.name == 'category':
+            cat = list(obj.cat.categories.values)
+            if obj.cat.ordered:
+                return 'factor(setNames(' + 'c(' + ','.join(
+                    _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
+                    _R_repr(y) for y in ind) + '))' + ',levels=' + 'c(' + ','.join(
+                    _R_repr(z) for z in cat) + ')' + ',ordered = TRUE' + ')'
+            else:
+                return 'factor(setNames(' + 'c(' + ','.join(
+                    _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
+                    _R_repr(y) for y in ind) + '))' + ',levels=' + 'c(' + ','.join(
+                    _R_repr(z) for z in cat) + ')' + ')'
+        
+        else:
+            return 'setNames(' + 'c(' + ','.join(
+                _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
+                    _R_repr(y) for y in ind) + '))'
     else:
         _R_repr_warnings[
             'Unsupported datatype {}. Variable is set to NULL'.format(
@@ -325,6 +339,32 @@ R_init_statements = r'''
             ..py.repr.n(obj)
         else
           paste0("pandas.Series(", "[", paste(sapply(unname(obj), ..py.repr.logical.1), collapse=','), "],", paste0("[", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
+    } else if (is.factor(obj)) {
+        # if the vector has no name
+        if (is.null(names(obj)))
+          if (is.ordered(obj))
+            paste0("pandas.Series(", 
+                   "pandas.Categorical(",
+                   "[", paste(sapply(unname(obj), ..py.repr.character.1), collapse=','), "],",
+                   "categories=[", paste(sapply(levels(obj), ..py.repr.character.1), collapse=','), "], ordered=True))")
+          else
+            paste0("pandas.Series(", 
+                   "pandas.Categorical(",
+                   "[", paste(sapply(unname(obj), ..py.repr.character.1), collapse=','), "],",
+                   "categories=[", paste(sapply(levels(obj), ..py.repr.character.1), collapse=','), "], ordered=False))")
+        else
+          if (is.ordered(obj))
+            paste0("pandas.Series(", 
+                   "pandas.Categorical(",
+                   "[", paste(sapply(unname(obj), ..py.repr.character.1), collapse=','), "],",
+                   "categories=[", paste(sapply(levels(obj), ..py.repr.character.1), collapse=','), "], ordered=True)",
+                   paste0(",index = [", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
+          else
+            paste0("pandas.Series(", 
+                   "pandas.Categorical(",
+                   "[", paste(sapply(unname(obj), ..py.repr.character.1), collapse=','), "],",
+                   "categories=[", paste(sapply(levels(obj), ..py.repr.character.1), collapse=','), "], ordered=False)",
+                   paste0(",index = [", paste0(sapply(names(obj), ..py.repr.character.1), collapse=','), "]"), ")")
     } else {
       "'Untransferrable variable'"
     }
