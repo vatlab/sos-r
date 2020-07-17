@@ -50,7 +50,7 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=[
-        'sos>=0.19.8', 'sos-notebook>=0.19.4', 'feather-format', 'pandas',
+        'sos>=0.19.8', 'sos-notebook>=0.19.4', 'pyarrow>=0.13.1', 'pandas',
         'numpy'
     ],
     entry_points='''

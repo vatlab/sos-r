@@ -93,7 +93,7 @@ def _R_repr(obj, processed=None):
         return repr(obj)
     elif isinstance(obj, numpy.matrixlib.defmatrix.matrix):
         try:
-            import feather
+            import pyarrow.feather as feather
         except ImportError:
             raise UsageError(
                 'The feather-format module is required to pass numpy matrix as R matrix'
@@ -101,7 +101,7 @@ def _R_repr(obj, processed=None):
             )
         feather_tmp_ = tempfile.NamedTemporaryFile(
             suffix='.feather', delete=False).name
-        feather.write_dataframe(pandas.DataFrame(obj).copy(), feather_tmp_)
+        feather.write_feather(pandas.DataFrame(obj).copy(), feather_tmp_)
         return 'data.matrix(..read.feather({!r}))'.format(feather_tmp_)
     elif isinstance(obj, numpy.ndarray):
         if obj.ndim == 1:
@@ -114,7 +114,7 @@ def _R_repr(obj, processed=None):
                         obj.swapaxes(obj.ndim - 2, obj.ndim - 1).shape) + ')))'
     elif isinstance(obj, pandas.DataFrame):
         try:
-            import feather
+            import pyarrow.feather as feather
         except ImportError:
             raise UsageError(
                 'The feather-format module is required to pass pandas DataFrame as R data.frame'
@@ -136,14 +136,14 @@ def _R_repr(obj, processed=None):
             elif not isinstance(data.index, pandas.RangeIndex):
                 # we should give a warning here
                 df_index = None
-            feather.write_dataframe(data, feather_tmp_)
+            feather.write_feather(data, feather_tmp_)
         except Exception:
             # if data cannot be written, we try to manipulate data
             # frame to have consistent types and try again
             for c in data.columns:
                 if not homogeneous_type(data[c]):
                     data[c] = [str(x) for x in data[c]]
-            feather.write_dataframe(data, feather_tmp_)
+            feather.write_feather(data, feather_tmp_)
             # use {!r} for path because the string might contain c:\ which needs to be
             # double quoted.
         return '..read.feather({!r}, index={})'.format(feather_tmp_,
@@ -214,9 +214,9 @@ R_init_statements = r'''
     tf = tempfile('arrow')
     write_feather(obj, tf)
     if (..has.row.names(obj)) {
-        paste0("read_dataframe(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),"))")
+        paste0("read_feather(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),"))")
     } else {
-        paste0("read_dataframe(r'", tf, "')")
+        paste0("read_feather(r'", tf, "')")
     }
 }
 ..py.repr.matrix <- function(obj) {
@@ -227,9 +227,9 @@ R_init_statements = r'''
     tf = tempfile('arrow')
     write_feather(as.data.frame(obj), tf)
     if (..has.row.names(obj)) {
-        paste0("read_dataframe(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),")).values")
+        paste0("read_feather(r'", tf, "').set_index(pandas.Index(", ..py.repr(row.names(obj)),")).values")
     } else {
-        paste0("read_dataframe(r'", tf, "').values")
+        paste0("read_feather(r'", tf, "').values")
     }
 }
 ..py.repr.array.numer <- function(obj) {
@@ -425,8 +425,8 @@ class sos_R:
         if to_kernel in ('Python2', 'Python3'):
             # directly to python3
             return '{}\n{}\n{}\nglobals().update({})'.format(
-                'from feather import read_dataframe\n'
-                if 'read_dataframe' in expr else '',
+                'from pyarrow.feather import read_feather\n'
+                if 'read_feather' in expr else '',
                 'import numpy' if 'numpy' in expr else '',
                 'import pandas' if 'pandas' in expr else '', expr)
         # to sos or any other kernel
@@ -434,11 +434,11 @@ class sos_R:
             # irkernel (since the new version) does not produce execute_result, only
             # display_data
             try:
-                if 'read_dataframe' in expr:
+                if 'read_feather' in expr:
                     # imported to be used by eval
-                    from feather import read_dataframe
+                    from pyarrow.feather import read_feather
                     # suppress flakes warning
-                    assert read_dataframe
+                    assert read_feather
                 # evaluate as raw string to correctly handle \\ etc
                 return eval(expr)
             except Exception as e:
