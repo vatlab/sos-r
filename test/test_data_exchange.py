@@ -87,7 +87,7 @@ class TestDataExchange(NotebookTest):
         output = self.get_from_SoS(notebook, f"[{','.join(integers)}]")
         assert all(x in output for x in integers)
         #
-        floats = ['1.34', '2.4']        
+        floats = ['1.34', '2.4']
         assert floats[0] == self.get_from_SoS(notebook, f'[{floats[0]}]')
         output = self.get_from_SoS(notebook, f"[{','.join(floats)}]")
         assert all(x in output for x in floats)
@@ -102,13 +102,11 @@ class TestDataExchange(NotebookTest):
         assert floats[0] == self.put_to_SoS(notebook, f'c({floats[0]})')
         output = self.put_to_SoS(notebook, f'c({",".join(floats)})')
         assert all(x in output for x in floats)
-        
 
     def test_get_logic_array(self, notebook):
         assert 'TRUE' == self.get_from_SoS(notebook, '[True]')
-        output = self.get_from_SoS(notebook,
-                                                      '[True, False, True]')
-        assert output.count('TRUE') == 2                                                      
+        output = self.get_from_SoS(notebook, '[True, False, True]')
+        assert output.count('TRUE') == 2
         assert output.count('FALSE') == 1
 
     def test_put_logic_array(self, notebook):
@@ -172,7 +170,6 @@ class TestDataExchange(NotebookTest):
         output = self.get_from_SoS(notebook, f'pd.Series([{",".join(nums)}])')
         for num in nums:
             assert num in output
-        
 
     def test_put_series(self, notebook):
         output = self.put_to_SoS(notebook,
@@ -181,8 +178,9 @@ class TestDataExchange(NotebookTest):
 
     def test_get_matrix(self, notebook):
         notebook.call('import numpy as np', kernel='SoS')
-        assert "0 1\n1 2\n3 4" in self.get_from_SoS(notebook,
-                                                    'np.matrix([[1,2],[3,4]])')
+        output = self.get_from_SoS(notebook, 'np.matrix([[123,456],[789,432]])')
+        for val in ('123', '456', '789', '432'):
+            val in output
 
     def test_put_matrix(self, notebook):
         output = self.put_to_SoS(notebook,
