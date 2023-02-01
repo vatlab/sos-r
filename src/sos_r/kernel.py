@@ -8,7 +8,7 @@ import pandas
 import re
 import tempfile
 
-from collections import Sequence
+from collections.abc import Sequence
 from sos.utils import short_repr, env
 from IPython.core.error import UsageError
 
