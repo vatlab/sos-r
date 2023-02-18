@@ -3,8 +3,9 @@
 # Copyright (c) Bo Peng and the University of Texas MD Anderson Cancer Center
 # Distributed under the terms of the 3-clause BSD License.
 
-from sos_notebook.test_utils import NotebookTest
 import random
+
+from sos_notebook.test_utils import NotebookTest
 
 
 class TestDataExchange(NotebookTest):

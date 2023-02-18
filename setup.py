@@ -4,6 +4,7 @@
 # Distributed under the terms of the 3-clause BSD License.
 
 import os
+
 from setuptools import find_packages, setup
 
 # obtain version of sos-r
@@ -50,8 +51,11 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=[
-        'sos>=0.19.8', 'sos-notebook>=0.19.4', 'pyarrow>=0.13.1', 'pandas',
-        'numpy'
+        'sos>=0.24.0',
+        'sos-notebook>=0.19.4',
+        'pyarrow>=0.13.1',
+        'pandas',
+        'numpy',
     ],
     entry_points='''
 [sos_languages]

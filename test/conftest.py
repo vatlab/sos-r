@@ -5,17 +5,17 @@
 
 import json
 import os
-import pytest
-import requests
-from subprocess import Popen
 import sys
-from testpath.tempdir import TemporaryDirectory
 import time
+from subprocess import Popen
 from urllib.parse import urljoin
 
-from selenium.webdriver import Firefox, Remote, Chrome
+import pytest
+import requests
 from selenium import webdriver
+from selenium.webdriver import Chrome, Firefox, Remote
 from sos_notebook.test_utils import Notebook
+from testpath.tempdir import TemporaryDirectory
 
 pjoin = os.path.join
 

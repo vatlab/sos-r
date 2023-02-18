@@ -3,14 +3,14 @@
 # Copyright (c) Bo Peng and the University of Texas MD Anderson Cancer Center
 # Distributed under the terms of the 3-clause BSD License.
 
-import numpy
-import pandas
 import re
 import tempfile
-
 from collections.abc import Sequence
-from sos.utils import short_repr, env
+
+import numpy
+import pandas
 from IPython.core.error import UsageError
+from sos.utils import env, short_repr
 
 from ._version import __version__
 
@@ -20,8 +20,7 @@ def homogeneous_type(seq):
     first_type = type(next(iseq))
     if first_type in (int, float):
         return True if all(isinstance(x, (int, float)) for x in iseq) else False
-    else:
-        return True if all(isinstance(x, first_type) for x in iseq) else False
+    return True if all(isinstance(x, first_type) for x in iseq) else False
 
 
 # make the SoS dict key name to be valid in R list
@@ -47,22 +46,20 @@ _R_repr_warnings = {}
 
 
 def _R_repr(obj, processed=None):
-    global _R_repr_warnings
+    global _R_repr_warnings  # pylint: disable=global-variable-not-assigned
     if isinstance(obj, bool):
         return 'TRUE' if obj else 'FALSE'
-    elif isinstance(obj, (int, str)):
+    if isinstance(obj, (int, str)):
         return repr(obj)
-    elif isinstance(obj, float):
+    if isinstance(obj, float):
         if numpy.isnan(obj):
             return 'NaN'
-        elif numpy.isinf(obj):
+        if numpy.isinf(obj):
             return 'Inf'
-        else:
-            return repr(obj)
-    elif isinstance(obj, complex):
-        return 'complex(real = ' + str(obj.real) + ', imaginary = ' + str(
-            obj.imag) + ')'
-    elif isinstance(obj, Sequence):
+        return repr(obj)
+    if isinstance(obj, complex):
+        return 'complex(real = ' + str(obj.real) + ', imaginary = ' + str(obj.imag) + ')'
+    if isinstance(obj, Sequence):
         if len(obj) == 0:
             return 'c()'
         # if the data is of homogeneous type, let us use c()
@@ -70,58 +67,43 @@ def _R_repr(obj, processed=None):
         # this can be confusion but list can be difficult to handle
         if homogeneous_type(obj):
             return 'c(' + ','.join(_R_repr(x) for x in obj) + ')'
-        else:
-            return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
-    elif obj is None:
+        return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
+    if obj is None:
         return 'NULL'
-    elif isinstance(obj, dict):
+    if isinstance(obj, dict):
         if processed:
             if id(obj) in processed:
                 return 'NULL'
         else:
             processed = set()
         processed.add(id(obj))
-        return 'list(' + ','.join(
-            '{}={}'.format(make_name(str(x)), _R_repr(y, processed))
-            for x, y in obj.items()) + ')'
-    elif isinstance(obj, set):
+        return 'list(' + ','.join(f'{make_name(str(x))}={_R_repr(y, processed)}' for x, y in obj.items()) + ')'
+    if isinstance(obj, set):
         return 'list(' + ','.join(_R_repr(x) for x in obj) + ')'
-    elif isinstance(
-            obj, (numpy.intc, numpy.intp, numpy.int8, numpy.int16, numpy.int32,
-                  numpy.int64, numpy.uint8, numpy.uint16, numpy.uint32,
-                  numpy.uint64, numpy.float16, numpy.float32, numpy.float64)):
+    if isinstance(obj, (numpy.intc, numpy.intp, numpy.int8, numpy.int16, numpy.int32, numpy.int64, numpy.uint8,
+                        numpy.uint16, numpy.uint32, numpy.uint64, numpy.float16, numpy.float32, numpy.float64)):
         return repr(obj)
-    elif isinstance(obj, numpy.matrixlib.defmatrix.matrix):
+    if isinstance(obj, numpy.matrixlib.defmatrix.matrix):
         try:
-            import pyarrow.feather as feather
-        except ImportError:
-            raise UsageError(
-                'The feather-format module is required to pass numpy matrix as R matrix'
-                'See https://github.com/wesm/feather/tree/master/python for details.'
-            )
-        feather_tmp_ = tempfile.NamedTemporaryFile(
-            suffix='.feather', delete=False).name
+            import pyarrow.feather as feather  # pylint: disable=consider-using-from-import
+        except ImportError as e:
+            raise UsageError('The feather-format module is required to pass numpy matrix as R matrix'
+                             'See https://github.com/wesm/feather/tree/master/python for details.') from e
+        feather_tmp_ = tempfile.NamedTemporaryFile(suffix='.feather', delete=False).name
         feather.write_feather(pandas.DataFrame(obj).copy(), feather_tmp_)
-        return 'data.matrix(..read.feather({!r}))'.format(feather_tmp_)
-    elif isinstance(obj, numpy.ndarray):
+        return f'data.matrix(..read.feather({feather_tmp_!r}))'
+    if isinstance(obj, numpy.ndarray):
         if obj.ndim == 1:
             return 'array(c(' + ','.join(_R_repr(x) for x in obj) + '))'
-        else:
-            return 'array(' + 'c(' + ','.join(
-                repr(x)
-                for x in obj.swapaxes(obj.ndim - 2, obj.ndim - 1).flatten(
-                    order='C')) + ')' + ', dim=(' + 'rev(c' + repr(
-                        obj.swapaxes(obj.ndim - 2, obj.ndim - 1).shape) + ')))'
-    elif isinstance(obj, pandas.DataFrame):
+        return 'array(' + 'c(' + ','.join(repr(x) for x in obj.swapaxes(obj.ndim - 2, obj.ndim - 1).flatten(
+            order='C')) + ')' + ', dim=(' + 'rev(c' + repr(obj.swapaxes(obj.ndim - 2, obj.ndim - 1).shape) + ')))'
+    if isinstance(obj, pandas.DataFrame):
         try:
-            import pyarrow.feather as feather
-        except ImportError:
-            raise UsageError(
-                'The feather-format module is required to pass pandas DataFrame as R data.frame'
-                'See https://github.com/wesm/feather/tree/master/python for details.'
-            )
-        feather_tmp_ = tempfile.NamedTemporaryFile(
-            suffix='.feather', delete=False).name
+            import pyarrow.feather as feather  # pylint: disable=consider-using-from-import
+        except ImportError as e:
+            raise UsageError('The feather-format module is required to pass pandas DataFrame as R data.frame'
+                             'See https://github.com/wesm/feather/tree/master/python for details.') from e
+        feather_tmp_ = tempfile.NamedTemporaryFile(suffix='.feather', delete=False).name
         try:
             data = obj.copy()
             # if the dataframe has index, it would not be transferred due to limitations
@@ -131,8 +113,7 @@ def _R_repr(obj, processed=None):
                 df_index = list(data.index)
                 if len(df_index) != len(set(df_index)):
                     df_index = None
-                    _R_repr_warnings[
-                        'Index is ignored because R dataframe does not accept non-unique row names.'] = 1
+                    _R_repr_warnings['Index is ignored because R dataframe does not accept non-unique row names.'] = 1
             elif not isinstance(data.index, pandas.RangeIndex):
                 # we should give a warning here
                 df_index = None
@@ -146,19 +127,14 @@ def _R_repr(obj, processed=None):
             feather.write_feather(data, feather_tmp_)
             # use {!r} for path because the string might contain c:\ which needs to be
             # double quoted.
-        return '..read.feather({!r}, index={})'.format(feather_tmp_,
-                                                       _R_repr(df_index))
-    elif isinstance(obj, pandas.Series):
+        return f'..read.feather({feather_tmp_!r}, index={_R_repr(df_index)})'
+    if isinstance(obj, pandas.Series):
         dat = list(obj.values)
         ind = list(obj.index.values)
-        return 'setNames(' + 'c(' + ','.join(
-            _R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
-                _R_repr(y) for y in ind) + '))'
-    else:
-        _R_repr_warnings[
-            'Unsupported datatype {}. Variable is set to NULL'.format(
-                short_repr(obj))] = 1
-        return 'NULL'
+        return 'setNames(' + 'c(' + ','.join(_R_repr(x) for x in dat) + ')' + ',c(' + ','.join(
+            _R_repr(y) for y in ind) + '))'
+    _R_repr_warnings[f'Unsupported datatype {short_repr(obj)}. Variable is set to NULL'] = 1
+    return 'NULL'
 
 
 # R    length (n)    Python
@@ -377,13 +353,14 @@ class sos_R:
         self.kernel_name = kernel_name
         self.init_statements = R_init_statements
 
-    def get_vars(self, names):
+    async def get_vars(self, names, as_var=None):
         global _R_repr_warnings
         for name in names:
-            if name.startswith('_'):
+            if as_var is not None:
+                newname = as_var
+            elif name.startswith('_'):
                 self.sos_kernel.warn(
-                    f'Variable {name} is passed from SoS to kernel {self.kernel_name} as {"." + name[1:]}'
-                )
+                    f'Variable {name} is passed from SoS to kernel {self.kernel_name} as {"." + name[1:]}')
                 newname = '.' + name[1:]
             else:
                 newname = name
@@ -393,16 +370,12 @@ class sos_R:
                 self.sos_kernel.warn('\n'.join(_R_repr_warnings.keys()))
                 _R_repr_warnings = {}
             env.log_to_file('VARIABLE', r_repr)
-            self.sos_kernel.run_cell(
-                f'{newname} <- {r_repr}',
-                True,
-                False,
-                on_error=f'Failed to get variable {name} to R')
+            await self.sos_kernel.run_cell(
+                f'{newname} <- {r_repr}', True, False, on_error=f'Failed to get variable {name} to R')
 
-    def put_vars(self, items, to_kernel=None):
+    def put_vars(self, items, to_kernel=None, as_var=None):
         # first let us get all variables with names starting with sos
-        response = self.sos_kernel.get_response(
-            'cat(..py.repr(ls()))', ('stream',), name=('stdout',))[0][1]
+        response = self.sos_kernel.get_response('cat(..py.repr(ls()))', ('stream',), name=('stdout',))[0][1]
         all_vars = eval(response['text'])
         all_vars = [all_vars] if isinstance(all_vars, str) else all_vars
 
@@ -410,40 +383,36 @@ class sos_R:
 
         for item in items:
             if '.' in item:
-                self.sos_kernel.warn(
-                    f'Variable {item} is put to SoS as {item.replace(".", "_")}'
-                )
+                self.sos_kernel.warn(f'Variable {item} is put to SoS as {item.replace(".", "_")}')
 
         if not items:
             return {}
 
-        py_repr = f'cat(..py.repr(list({",".join("{0}={0}".format(x) for x in items)})))'
-        response = self.sos_kernel.get_response(
-            py_repr, ('stream',), name=('stdout',))[0][1]
+        py_repr = f'cat(..py.repr(list({",".join(f"{as_var if as_var else x}={x}" for x in items)})))'
+        response = self.sos_kernel.get_response(py_repr, ('stream',), name=('stdout',))[0][1]
         expr = response['text']
 
         if to_kernel in ('Python2', 'Python3'):
             # directly to python3
             return '{}\n{}\n{}\nglobals().update({})'.format(
-                'from pyarrow.feather import read_feather\n'
-                if 'read_feather' in expr else '',
-                'import numpy' if 'numpy' in expr else '',
-                'import pandas' if 'pandas' in expr else '', expr)
+                'from pyarrow.feather import read_feather\n' if 'read_feather' in expr else '',
+                'import numpy' if 'numpy' in expr else '', 'import pandas' if 'pandas' in expr else '', expr)
         # to sos or any other kernel
-        else:
-            # irkernel (since the new version) does not produce execute_result, only
-            # display_data
-            try:
-                if 'read_feather' in expr:
-                    # imported to be used by eval
-                    from pyarrow.feather import read_feather
-                    # suppress flakes warning
-                    assert read_feather
-                # evaluate as raw string to correctly handle \\ etc
-                return eval(expr)
-            except Exception as e:
-                self.sos_kernel.warn(f'Failed to evaluate {expr!r}: {e}')
-                return None
+
+        # irkernel (since the new version) does not produce execute_result, only
+        # display_data
+        try:
+            if 'read_feather' in expr:
+                # imported to be used by eval
+                from pyarrow.feather import read_feather
+
+                # suppress flakes warning
+                assert read_feather
+            # evaluate as raw string to correctly handle \\ etc
+            return eval(expr)
+        except Exception as e:
+            self.sos_kernel.warn(f'Failed to evaluate {expr!r}: {e}')
+            return None
 
     def expand(self, text, sigil):
         if '"' in sigil:
@@ -458,29 +427,23 @@ class sos_R:
             if r[0].isalpha():
                 r = ' ' + r
             return self.sos_kernel.get_response(
-                f'..sos.expand("{text}", c("{l}", "{r}"))', ('stream',),
-                name=('stdout',))[0][1]['text']
+                f'..sos.expand("{text}", c("{l}", "{r}"))', ('stream',), name=('stdout',))[0][1]['text']
         except Exception:
             err_msg = self.sos_kernel.get_response(
-                f'..sos.expand("{text}", c("{l}", "{r}"))', ('error',),
-                name=('evalue',))[0][1]['evalue']
-            self.sos_kernel.warn(
-                f'Failed to expand {text} with sigil {sigil}: {err_msg}')
+                f'..sos.expand("{text}", c("{l}", "{r}"))', ('error',), name=('evalue',))[0][1]['evalue']
+            self.sos_kernel.warn(f'Failed to expand {text} with sigil {sigil}: {err_msg}')
             return text
 
     def preview(self, item):
         # return the preview of variable.
         try:
             return "", self.sos_kernel.get_response(
-                f'..sos.preview("{item}")', ('stream',),
-                name=('stdout',))[0][1]['text']
+                f'..sos.preview("{item}")', ('stream',), name=('stdout',))[0][1]['text']
         except Exception as e:
             env.log_to_file('VARIABLE', f'Preview of {item} failed: {e}')
             return None
 
     def sessioninfo(self):
         response = self.sos_kernel.get_response(
-            r'cat(paste(capture.output(sessionInfo()), collapse="\n"))',
-            ('stream',),
-            name=('stdout',))[0]
+            r'cat(paste(capture.output(sessionInfo()), collapse="\n"))', ('stream',), name=('stdout',))[0]
         return response[1]['text']

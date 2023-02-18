@@ -5,4 +5,4 @@
 
 import sys
 
-__version__ = '0.19.8'
+__version__ = '0.20.0'
