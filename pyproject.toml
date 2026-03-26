@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sos-r"
-version = "0.1.6"
+version = "0.20.3"
 description = "SoS Notebook extension for language R"
 readme = "README.md"
 requires-python = ">=3.8"
